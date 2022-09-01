@@ -9,7 +9,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,14 +29,12 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.model.LatLng;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
 
 //TODO: send provider thru intent
-public class MainActivity extends AppCompatActivity {
+public class DebugActivity extends AppCompatActivity {
 	private static final String TAG = "MainActivity";
 
 	TextView mainLatValueTV;
@@ -104,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_debug);
 
 		if (!arePermissionsGranted(this)) {
 			requestPermissions(this);
