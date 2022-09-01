@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">TargetApp</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps2">MapsActivity2</string>
+    <string name="latitude">Latitude:</string>
+    <string name="placeholder">placeholder</string>
+    <string name="longitude">Longitude:</string>
+    <string name="send_location">Send location</string>
+    <string name="location_history">Location history:</string>
+    <string name="date">Date:</string>
+</resources>

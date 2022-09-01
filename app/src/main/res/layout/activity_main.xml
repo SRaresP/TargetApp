@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The ID's in this file should always start with
+"main" to denote the activity -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".ui.MainActivity">
+
+    <TextView
+        android:id="@+id/mainDateLabelTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/date"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/mainDateValueTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/mainDateLabelTV"
+        android:padding="10dp"
+        android:text="@string/placeholder"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/mainLatLabelTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/latitude"
+        android:textSize="20sp"
+        android:layout_below="@id/mainDateLabelTV"/>
+
+    <TextView
+        android:id="@+id/mainLatValueTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/mainLatLabelTV"
+        android:padding="10dp"
+        android:text="@string/placeholder"
+        android:textSize="20sp"
+        android:layout_below="@id/mainDateValueTV"/>
+
+    <TextView
+        android:id="@+id/mainLonLabelTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mainLatLabelTV"
+        android:padding="10dp"
+        android:text="@string/longitude"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/mainLonValueTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mainLatValueTV"
+        android:layout_toRightOf="@id/mainLonLabelTV"
+        android:padding="10dp"
+        android:text="@string/placeholder"
+        android:textSize="20sp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/mainSendBTN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mainLonLabelTV"
+        android:padding="10dp"
+        android:text="@string/send_location" />
+
+    <TextView
+        android:id="@+id/mainHistoryLabelTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mainSendBTN"
+        android:padding="10dp"
+        android:text="@string/location_history"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/mainHistoryValueTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mainHistoryLabelTV"
+        android:padding="10dp"
+        android:text="@string/placeholder"
+        android:textSize="20sp" />
+
+
+</RelativeLayout>
