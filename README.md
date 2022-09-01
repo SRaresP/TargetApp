@@ -1,5 +1,5 @@
 # TargetApp
-Part of the Geofencing package. This app is used by the person being tracked
+Part of the Geofencing package. This app is used by the person being tracked.
 
 ## Todo
 
