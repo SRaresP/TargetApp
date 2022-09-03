@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.Date;
 
 public class ServerHandler {
@@ -47,16 +48,39 @@ public class ServerHandler {
 			throw new EmptyMessageException("History is empty");
 		}
 
-		String lastLocation = CurrentUser.locationHistory.split(String.valueOf(TargetApp.USER_SEPARATOR))[0];
+		String lastLocation = CurrentUser.locationHistory.split(String.valueOf(TargetApp.LOC_HISTORY_SEPARATOR))[0];
 		StringBuilder stringBuilder = new StringBuilder()
 				.append(LOCATION_UPDATE)
 				.append(TargetApp.COMM_SEPARATOR)
-				.append(CurrentUser.email)
-				.append(TargetApp.COMM_SEPARATOR)
-				.append(TargetApp.COMM_SEPARATOR)
-				.append(CurrentUser.password)
+				.append(CurrentUser.toText(true))
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(lastLocation);
+		printWriter.write(stringBuilder.toString());
+		printWriter.flush();
+		return socket;
+	}
+
+	public static Socket login() throws IOException {
+		Socket socket = new Socket(IP, PORT);
+		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+
+		StringBuilder stringBuilder = new StringBuilder()
+				.append(LOGIN)
+				.append(TargetApp.COMM_SEPARATOR)
+				.append(CurrentUser.toText(true));
+		printWriter.write(stringBuilder.toString());
+		printWriter.flush();
+		return socket;
+	}
+
+	public static Socket register() throws IOException {
+		Socket socket = new Socket(IP, PORT);
+		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+
+		StringBuilder stringBuilder = new StringBuilder()
+				.append(REGISTER)
+				.append(TargetApp.COMM_SEPARATOR)
+				.append(CurrentUser.toText(true));
 		printWriter.write(stringBuilder.toString());
 		printWriter.flush();
 		return socket;

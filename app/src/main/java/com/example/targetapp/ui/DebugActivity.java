@@ -37,15 +37,15 @@ import java.util.Date;
 public class DebugActivity extends AppCompatActivity {
 	private static final String TAG = "MainActivity";
 
-	TextView mainLatValueTV;
-	TextView mainLonValueTV;
-	AppCompatButton mainSendBTN;
-	TextView mainHistoryValueTV;
-	TextView mainDateValueTV;
+	private TextView mainLatValueTV;
+	private TextView mainLonValueTV;
+	private TextView mainHistoryValueTV;
+	private TextView mainDateValueTV;
+	private AppCompatButton mainSendBTN;
 
-	LocationRequest locationRequest;
-	LocationCallback locationCallBack;
-	FusedLocationProviderClient fusedLocationProviderClient;
+	private LocationRequest locationRequest;
+	private LocationCallback locationCallBack;
+	private FusedLocationProviderClient fusedLocationProviderClient;
 
 	private static boolean arePermissionsGranted(Context context) {
 		boolean hasCoarsePermission =
@@ -97,6 +97,37 @@ public class DebugActivity extends AppCompatActivity {
 		mainLonValueTV.setText(String.valueOf(latLng.longitude));
 	}
 
+	private void sendLocationUpdate() {
+		TargetApp.getInstance().getExecutorService().execute(() -> {
+			String response = "";
+			//send and receive from server
+			try {
+				Socket socket = ServerHandler.updateLocation();
+				response = ServerHandler.receive(socket);
+			} catch (IOException | EmptyMessageException e) {
+				TargetApp.getInstance().getMainThreadHandler().post(() -> {
+					Toast.makeText(this, "Server communication threw exception: " + e.getMessage(), Toast.LENGTH_LONG).show();
+				});
+				Log.e(TAG, e.getMessage(), e);
+			}
+			//process response
+			String finalResponse = response;
+			TargetApp.getInstance().getMainThreadHandler().post(() -> {
+				if (finalResponse.contains(ServerHandler.LOCATION_UPDATED)) {
+					Toast.makeText(this, "Server reports successful location update!", Toast.LENGTH_LONG).show();
+				} else if (finalResponse.contains(ServerHandler.NOT_FOUND)) {
+					Toast.makeText(this, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
+				} else if (finalResponse.contains(ServerHandler.WRONG_PASSWORD)) {
+					Toast.makeText(this, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
+				} else if (finalResponse.contains(ServerHandler.UNDEFINED_CASE)) {
+					Toast.makeText(this, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(this, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
+				}
+			});
+		});
+	}
+
 	@SuppressLint("MissingPermission")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +137,8 @@ public class DebugActivity extends AppCompatActivity {
 		if (!arePermissionsGranted(this)) {
 			requestPermissions(this);
 		}
+
+		TargetApp targetApp = TargetApp.getInstance();
 
 		mainLatValueTV = findViewById(R.id.mainLatValueTV);
 		mainLonValueTV = findViewById(R.id.mainLonValueTV);
@@ -126,28 +159,34 @@ public class DebugActivity extends AppCompatActivity {
 			public void onLocationResult(@NonNull LocationResult locationResult) {
 				super.onLocationResult(locationResult);
 				fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+					//update current location ui
 					Date currentDate = new Date();
 					mainDateValueTV.setText(currentDate.toString());
 					mainLatValueTV.setText(String.valueOf(location.getLatitude()));
 					mainLonValueTV.setText(String.valueOf(location.getLongitude()));
 
+					//add location to current user
 					String lastLocation = String.valueOf(currentDate.getTime()) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
 							location.getLatitude() +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
 							location.getLongitude();
-
 					try {
 						CurrentUser.locationHistory = LocationHandler.AddLocation(CurrentUser.locationHistory, lastLocation);
 					} catch (IllegalArgumentException e) {
 						Log.e(TAG, e.getMessage(), e);
 					}
+
+					//update history ui
 					String[] historyArray = CurrentUser.locationHistory.split(String.valueOf(TargetApp.LOC_HISTORY_SEPARATOR));
 					StringBuilder historyString = new StringBuilder();
 					for (String s : historyArray) {
 						historyString.append(s).append("\n");
 					}
 					mainHistoryValueTV.setText(historyString.toString());
+
+					//sync to server
+					sendLocationUpdate();
 				});
 			}
 		};
@@ -157,61 +196,5 @@ public class DebugActivity extends AppCompatActivity {
 		} catch (SecurityException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
-
-		mainSendBTN.setOnClickListener(view -> {
-			TargetApp.getInstance().getExecutorService().execute(() -> {
-				String response = "";
-				try {
-					Socket socket = ServerHandler.updateLocation();
-					response = ServerHandler.receive(socket);
-				} catch (IOException | EmptyMessageException e) {
-					TargetApp.getInstance().getMainThreadHandler().post(() -> {
-						Toast.makeText(this, "Server communication threw exception: " + e.getMessage(), Toast.LENGTH_LONG).show();
-					});
-					Log.e(TAG, e.getMessage(), e);
-				}
-
-				String finalResponse = response;
-				TargetApp.getInstance().getMainThreadHandler().post(() -> {
-					switch (finalResponse) {
-						case ServerHandler.LOGGED_IN:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.REGISTERED:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.EDITED:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.LOCATION_UPDATED:
-							Toast.makeText(this, "Server reports succesful location update!", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.NOT_FOUND:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.WRONG_PASSWORD:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.EMAIL_ALREADY_TAKEN:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						case ServerHandler.UNDEFINED_CASE:
-							Toast.makeText(this, "Server reports jibberish", Toast.LENGTH_LONG).show();
-							break;
-						default:
-							Toast.makeText(this, "Server reports something undefined", Toast.LENGTH_LONG).show();
-							break;
-					}
-				});
-			});
-		});
-
-//		if (!initialised) {
-//			Intent intent = new Intent(this, MapsActivity.class);
-//			startActivity(intent);
-//			initialised = true;
-//		}
-
-
 	}
 }

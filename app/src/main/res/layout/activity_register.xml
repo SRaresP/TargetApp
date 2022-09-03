@@ -1,61 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- The ID's in this file should always start with
-"log" to denote the activity -->
+"reg" to denote the activity -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.auth.AuthActivity">
+    tools:context=".ui.auth.RegisterActivity">
 
     <ScrollView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp">
-
+            
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/logTV"
+                android:id="@+id/regRegisterTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="@string/i_could_not_find_an_account"
-                android:textSize="20sp" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/logLoginTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/logTV"
                 android:layout_centerHorizontal="true"
                 android:padding="10dp"
-                android:text="@string/log_in"
+                android:text="@string/register"
                 android:textAlignment="center"
                 android:textSize="30sp" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/logEmailTV"
+                android:id="@+id/regEmailRegisterTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/logLoginTV"
+                android:layout_below="@+id/regRegisterTV"
                 android:paddingHorizontal="10dp"
                 android:text="@string/email"
                 android:textSize="20sp" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/logEmailTIL"
+                android:id="@+id/regEmailRegisterTIL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/logEmailTV"
-                android:padding="10dp">
+                android:layout_below="@+id/regEmailRegisterTV"
+                android:paddingHorizontal="10dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/logEmailTIET"
+                    android:id="@+id/regEmailRegisterTIET"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="textEmailAddress"
@@ -65,24 +56,51 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/logPasswordTV"
+                android:id="@+id/regNameRegisterTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/logEmailTIL"
+                android:layout_below="@id/regEmailRegisterTIL"
+                android:paddingHorizontal="10dp"
+                android:text="@string/name"
+                android:textSize="20sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/regNameRegisterTIL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/regNameRegisterTV"
+                android:paddingHorizontal="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/regNameRegisterTIET"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textPersonName"
+                    android:maxLength="64"
+                    android:padding="10dp"
+                    android:textSize="20sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/regPasswordRegisterTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/regNameRegisterTIL"
                 android:paddingHorizontal="10dp"
                 android:text="@string/password"
                 android:textSize="20sp" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/logPasswordTIL"
+                android:id="@+id/regPasswordRegisterTIL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/logPasswordTV"
-                android:padding="10dp"
+                android:layout_below="@+id/regPasswordRegisterTV"
+                android:paddingHorizontal="10dp"
                 app:endIconMode="password_toggle">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/logPasswordTIET"
+                    android:id="@+id/regPasswordRegisterTIET"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="textPassword"
@@ -93,27 +111,16 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/logLoginB"
+                android:id="@+id/regRegisterB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/logPasswordTIL"
+                android:layout_below="@id/regPasswordRegisterTIL"
                 android:layout_centerHorizontal="true"
-                android:padding="10dp"
-                android:text="@string/log_in"
+                android:paddingHorizontal="10dp"
+                android:text="@string/register"
                 android:textSize="20sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/logRegisterB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/logLoginB"
-                android:layout_centerHorizontal="true"
-                android:padding="10dp"
-                android:text="Don't have an account?\nRegister instead"
-                android:textSize="20sp" />
-
         </RelativeLayout>
 
     </ScrollView>
 
-</LinearLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>

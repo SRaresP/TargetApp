@@ -8,4 +8,10 @@
     <string name="send_location">Send location</string>
     <string name="location_history">Location history:</string>
     <string name="date">Date:</string>
+    <string name="i_could_not_find_an_account">I could not find an account stored locally, please log in or create a new account.</string>
+    <string name="log_in">Log in</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="name">Name</string>
 </resources>
