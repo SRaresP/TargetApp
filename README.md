@@ -3,6 +3,8 @@ Part of the Geofencing package. This app is used by the person being tracked.
 
 ## Todo
 
+Replace LoadingView with a custom alert.
+
 Finish user accounts implementation.
 
 Implement timed tracking tokens to be used with server, for security, in preparation for the implementation of OverseerApp.

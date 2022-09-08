@@ -101,12 +101,12 @@ public class EncryptedStorageController extends StorageController {
 		return masterPasswordFile != null;
 	}
 
-	public void add(final String fileName, final String fileContents, final String internalAppFolder)
+	public void add(final String fileName, final String fileContents, final String internalAppFolder, final boolean overwrite)
 			throws IOException {
 		File folder = new File(encryptedStorageRoot.getAbsolutePath() + internalAppFolder);
 		folder.mkdirs();
 		File file = findFile(folder, fileName, false);
-		if (file != null) {
+		if (file != null && !overwrite) {
 			throw new FileAlreadyExistsException("Duplicate file name provided");
 		}
 		file = new File(folder, fileName);
@@ -119,8 +119,8 @@ public class EncryptedStorageController extends StorageController {
 		fileOutputStream.close();
 	}
 
-	public void add(final String fileName, final String fileContents) throws IOException {
-		add(fileName, fileContents, "");
+	public void add(final String fileName, final String fileContents, final boolean overwrite) throws IOException {
+		add(fileName, fileContents, "", overwrite);
 	}
 
 	public File createDirectory(final String fileName, final String internalAppFolder) throws IOException {

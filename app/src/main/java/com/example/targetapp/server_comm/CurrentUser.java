@@ -42,16 +42,25 @@ public class CurrentUser {
 
 	public static void fromText(String userString) throws IllegalArgumentException {
 		String[] parameterUser = userString.split(String.valueOf(TargetApp.USER_SEPARATOR));
-		if (parameterUser.length != 4) throw new IllegalArgumentException("userString was not properly formatted");
-		email = parameterUser[0];
-		name = parameterUser[1];
-		password = parameterUser[2];
-		locationHistory = parameterUser[3];
+		if (parameterUser.length == 4) {
+			email = parameterUser[0];
+			name = parameterUser[1];
+			password = parameterUser[2];
+			locationHistory = parameterUser[3];
+		}
+		else if (parameterUser.length == 3) {
+			email = parameterUser[0];
+			name = parameterUser[1];
+			password = parameterUser[2];
+			locationHistory = "";
+		} else {
+			throw new IllegalArgumentException("userString was not properly formatted");
+		}
 	}
 
 	public static void saveToDisk() throws IOException {
 		EncryptedStorageController encryptedStorageController = EncryptedStorageController.getInstance(TargetApp.getInstance().getApplicationContext());
-		encryptedStorageController.add(SAVED_USER_FILENAME, toText(true));
+		encryptedStorageController.add(SAVED_USER_FILENAME, toText(false), true);
 	}
 
 	public static void setCurrentUserFromDisk() throws IOException {

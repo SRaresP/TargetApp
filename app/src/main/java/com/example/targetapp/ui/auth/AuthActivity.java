@@ -1,12 +1,13 @@
 package com.example.targetapp.ui.auth;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Patterns;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.targetapp.R;
@@ -14,6 +15,7 @@ import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
 import com.example.targetapp.server_comm.ServerHandler;
 import com.example.targetapp.ui.DebugActivity;
+import com.example.targetapp.ui.custom.LoadingView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
@@ -27,6 +29,54 @@ public class AuthActivity extends AppCompatActivity {
 	private AppCompatButton loginB;
 	private AppCompatButton registerB;
 
+	private void loginAndContinueAsync(@NonNull final LoadingView loadingView) {
+		Toast.makeText(this, "Connecting to server", Toast.LENGTH_SHORT).show();
+		TargetApp targetApp = TargetApp.getInstance();
+		targetApp.getExecutorService().execute(() -> {
+			try {
+				Socket socket = ServerHandler.login();
+				String response = ServerHandler.receive(socket);
+				//THIS IF ONLY WORKS IF I USE "CONTAINS" INSTEAD OF "EQUALS"
+				//AND I HAVE NO IDEA WHY GOD HELP US ALL
+				if (response.contains(ServerHandler.LOGGED_IN)) {
+					try {
+						CurrentUser.saveToDisk();
+					} catch (IOException e) {
+						Log.e(TAG, e.getMessage(), e);
+						targetApp.getMainThreadHandler().post(() -> {
+							Toast.makeText(this, "Could not save user data to disk, you will have to log in again next time", Toast.LENGTH_SHORT).show();
+							loadingView.terminate();
+						});
+					}
+					targetApp.getMainThreadHandler().post(() -> {
+						loadingView.terminate();
+						Intent intent = new Intent(this, DebugActivity.class);
+						startActivity(intent);
+					});
+				} else {
+					targetApp.getMainThreadHandler().post(() -> {
+						if (response.contains(ServerHandler.NOT_FOUND)) {
+							loadingView.terminate();
+							Toast.makeText(this, "Server could not find an account with that email address", Toast.LENGTH_LONG).show();
+						} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
+							loadingView.terminate();
+							Toast.makeText(this, "Entered password does not match", Toast.LENGTH_SHORT).show();
+						} else {
+							loadingView.terminate();
+							Toast.makeText(this, "Server sent an unexpected reply", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage(), e);
+				targetApp.getMainThreadHandler().post(() -> {
+					loadingView.terminate();
+					Toast.makeText(this, "Error communicating with server", Toast.LENGTH_LONG).show();
+				});
+			}
+		});
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -34,16 +84,16 @@ public class AuthActivity extends AppCompatActivity {
 
 		TargetApp targetApp = TargetApp.getInstance();
 
+		RelativeLayout innerRelLayout = findViewById(R.id.logInnerRelLayout);
+		loginB = findViewById(R.id.logLoginB);
+		registerB = findViewById(R.id.logRegisterB);
+
 		try {
 			CurrentUser.setCurrentUserFromDisk();
-
 			//code reaches this if user logged in before
-			//TODO: login to the server
-
-
-
-			Intent intent = new Intent(this, DebugActivity.class);
-			startActivity(intent);
+			LoadingView loadingView = new LoadingView(innerRelLayout, this, "Logging in using saved credentials", null, new AppCompatButton[] {loginB, registerB}, false).show();
+			loginAndContinueAsync(loadingView);
+			return;
 		} catch (IOException e) {
 			Log.i(TAG, e.getMessage() + "; user is not logged in", e);
 			//stays on this activity so the user can log in manually
@@ -51,40 +101,14 @@ public class AuthActivity extends AppCompatActivity {
 
 		emailTIET = findViewById(R.id.logEmailTIET);
 		passwordTIET = findViewById(R.id.logPasswordTIET);
-		loginB = findViewById(R.id.logLoginB);
-		registerB = findViewById(R.id.logRegisterB);
 
 		loginB.setOnClickListener(view -> {
 			String email = emailTIET.getText().toString();
 			String password = passwordTIET.getText().toString();
 			CurrentUser.setCurrentUser(email, "", password, "");
 
-			Toast.makeText(this, "Connecting to server", Toast.LENGTH_SHORT).show();
-			targetApp.getExecutorService().execute(() -> {
-				try {
-				Socket socket = ServerHandler.login();
-				String response = ServerHandler.receive(socket);
-				targetApp.getMainThreadHandler().post(() -> {
-					//THIS IF ONLY WORKS IF I USE "CONTAINS" INSTEAD OF "EQUALS"
-					//AND I HAVE NO IDEA WHY GOD HELP US ALL
-					if (response.contains(ServerHandler.LOGGED_IN)) {
-						Intent intent = new Intent(this, DebugActivity.class);
-						startActivity(intent);
-					} else if (response.contains(ServerHandler.NOT_FOUND)) {
-						Toast.makeText(this, "Server could not find an account with that email address", Toast.LENGTH_LONG).show();
-					} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
-						Toast.makeText(this, "Entered password does not match", Toast.LENGTH_SHORT).show();
-					} else {
-						Toast.makeText(this, "Server sent an unexpected reply", Toast.LENGTH_SHORT).show();
-					}
-				});
-				} catch (IOException e) {
-					Log.e(TAG, e.getMessage(), e);
-					targetApp.getMainThreadHandler().post(() -> {
-						Toast.makeText(this, "Error communicating with server", Toast.LENGTH_LONG).show();
-					});
-				}
-			});
+			LoadingView loadingView = new LoadingView(innerRelLayout, this, "Logging in using saved credentials", null, new AppCompatButton[] {loginB, registerB}, false).show();
+			loginAndContinueAsync(loadingView);
 		});
 
 		registerB.setOnClickListener(view -> {
