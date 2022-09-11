@@ -1,6 +1,7 @@
 package com.example.targetapp.ui.auth;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
@@ -29,7 +30,7 @@ public class AuthActivity extends AppCompatActivity {
 	private AppCompatButton loginB;
 	private AppCompatButton registerB;
 
-	private void loginAndContinueAsync(@NonNull final LoadingView loadingView) {
+	private void loginAndContinueAsync(@NonNull final AlertDialog alertDialog) {
 		Toast.makeText(this, "Connecting to server", Toast.LENGTH_SHORT).show();
 		TargetApp targetApp = TargetApp.getInstance();
 		targetApp.getExecutorService().execute(() -> {
@@ -45,24 +46,24 @@ public class AuthActivity extends AppCompatActivity {
 						Log.e(TAG, e.getMessage(), e);
 						targetApp.getMainThreadHandler().post(() -> {
 							Toast.makeText(this, "Could not save user data to disk, you will have to log in again next time", Toast.LENGTH_SHORT).show();
-							loadingView.terminate();
+							alertDialog.dismiss();
 						});
 					}
 					targetApp.getMainThreadHandler().post(() -> {
-						loadingView.terminate();
+						alertDialog.dismiss();
 						Intent intent = new Intent(this, DebugActivity.class);
 						startActivity(intent);
 					});
 				} else {
 					targetApp.getMainThreadHandler().post(() -> {
 						if (response.contains(ServerHandler.NOT_FOUND)) {
-							loadingView.terminate();
+							alertDialog.dismiss();
 							Toast.makeText(this, "Server could not find an account with that email address", Toast.LENGTH_LONG).show();
 						} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
-							loadingView.terminate();
+							alertDialog.dismiss();
 							Toast.makeText(this, "Entered password does not match", Toast.LENGTH_SHORT).show();
 						} else {
-							loadingView.terminate();
+							alertDialog.dismiss();
 							Toast.makeText(this, "Server sent an unexpected reply", Toast.LENGTH_SHORT).show();
 						}
 					});
@@ -70,7 +71,7 @@ public class AuthActivity extends AppCompatActivity {
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage(), e);
 				targetApp.getMainThreadHandler().post(() -> {
-					loadingView.terminate();
+					alertDialog.dismiss();
 					Toast.makeText(this, "Error communicating with server", Toast.LENGTH_LONG).show();
 				});
 			}
@@ -88,16 +89,12 @@ public class AuthActivity extends AppCompatActivity {
 		loginB = findViewById(R.id.logLoginB);
 		registerB = findViewById(R.id.logRegisterB);
 
-		try {
-			CurrentUser.setCurrentUserFromDisk();
-			//code reaches this if user logged in before
-			LoadingView loadingView = new LoadingView(innerRelLayout, this, "Logging in using saved credentials", null, new AppCompatButton[] {loginB, registerB}, false).show();
-			loginAndContinueAsync(loadingView);
-			return;
-		} catch (IOException e) {
-			Log.i(TAG, e.getMessage() + "; user is not logged in", e);
-			//stays on this activity so the user can log in manually
-		}
+		//TODO: make this alert actually show up
+		AlertDialog alertDialogAutoLogin = new AlertDialog.Builder(this)
+				.setView(new LoadingView(this, "Attempting to log in using stored credentials", true))
+				.setCancelable(false)
+				.create();
+		alertDialogAutoLogin.show();
 
 		emailTIET = findViewById(R.id.logEmailTIET);
 		passwordTIET = findViewById(R.id.logPasswordTIET);
@@ -107,13 +104,26 @@ public class AuthActivity extends AppCompatActivity {
 			String password = passwordTIET.getText().toString();
 			CurrentUser.setCurrentUser(email, "", password, "");
 
-			LoadingView loadingView = new LoadingView(innerRelLayout, this, "Logging in using saved credentials", null, new AppCompatButton[] {loginB, registerB}, false).show();
-			loginAndContinueAsync(loadingView);
+			//LoadingView loadingView = new LoadingView(innerRelLayout, this, "Logging in", null, new AppCompatButton[] {loginB, registerB}, false).show();
+			AlertDialog alertDialogClassicLogin = new AlertDialog.Builder(this)
+					.setView(new LoadingView(this, "Logging in", false))
+					.setCancelable(false)
+					.create();
+			alertDialogClassicLogin.show();
+			loginAndContinueAsync(alertDialogClassicLogin);
 		});
 
 		registerB.setOnClickListener(view -> {
 			Intent intent = new Intent(this, RegisterActivity.class);
 			startActivity(intent);
 		});
+
+		try {
+			CurrentUser.setCurrentUserFromDisk();
+			loginAndContinueAsync(alertDialogAutoLogin);
+		} catch (IOException e) {
+			Log.i(TAG, e.getMessage() + "; user is not logged in", e);
+			//stays on this activity so the user can log in manually
+		}
 	}
 }

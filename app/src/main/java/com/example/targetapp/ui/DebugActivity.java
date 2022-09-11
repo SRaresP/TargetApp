@@ -42,6 +42,8 @@ public class DebugActivity extends AppCompatActivity {
 	private TextView mainHistoryValueTV;
 	private TextView mainDateValueTV;
 	private AppCompatButton mainSendBTN;
+	private AppCompatButton mainGetCodeBTN;
+	private TextView mainCodeValueTV;
 
 	private LocationRequest locationRequest;
 	private LocationCallback locationCallBack;
@@ -145,6 +147,8 @@ public class DebugActivity extends AppCompatActivity {
 		mainSendBTN = findViewById(R.id.mainSendBTN);
 		mainHistoryValueTV = findViewById(R.id.mainHistoryValueTV);
 		mainDateValueTV = findViewById(R.id.mainDateValueTV);
+		mainGetCodeBTN = findViewById(R.id.mainGetCodeB);
+		mainCodeValueTV = findViewById(R.id.mainCodeValueTV);
 
 		fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -196,5 +200,33 @@ public class DebugActivity extends AppCompatActivity {
 		} catch (SecurityException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
+
+		mainGetCodeBTN.setOnClickListener(view -> {
+			targetApp.getExecutorService().execute(() -> {
+				try {
+					Socket socket = ServerHandler.getUniqueCode();
+					String response = ServerHandler.receive(socket).trim();
+
+					if (response.contains(ServerHandler.DELIVERED_CODE)) {
+						String code = response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1];
+						targetApp.getMainThreadHandler().post(() -> {
+							mainCodeValueTV.setText(code);
+						});
+					} else {
+						targetApp.getMainThreadHandler().post(() -> {
+							if (response.contains(ServerHandler.NOT_FOUND)) {
+								Toast.makeText(this, "Server could not find an account with that email address", Toast.LENGTH_LONG).show();
+							} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
+								Toast.makeText(this, "Password does not match", Toast.LENGTH_SHORT).show();
+							} else {
+								Toast.makeText(this, "Server sent an unexpected reply", Toast.LENGTH_SHORT).show();
+							}
+						});
+					}
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage(), e);
+				}
+			});
+		});
 	}
 }

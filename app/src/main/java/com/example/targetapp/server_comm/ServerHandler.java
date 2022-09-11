@@ -20,6 +20,7 @@ public class ServerHandler {
 	private static final String REGISTER = "REGISTER";
 	private static final String EDIT = "EDIT";
 	private static final String LOCATION_UPDATE = "LOCATION_UPDATE";
+	private static final String GET_UNIQUE_CODE = "GET_UNIQUE_CODE";
 
 	//replies from server
 	//positive
@@ -27,6 +28,7 @@ public class ServerHandler {
 	public static final String REGISTERED = "REGISTERED";
 	public static final String EDITED = "EDITED";
 	public static final String LOCATION_UPDATED = "LOCATION_UPDATED";
+	public static final String DELIVERED_CODE = "DELIVERED_CODE";
 	//negative
 	public static final String NOT_FOUND = "NOT_FOUND";
 	public static final String WRONG_PASSWORD = "WRONG_PASSWORD";
@@ -36,6 +38,32 @@ public class ServerHandler {
 
 	//Do not call constructor, use static methods
 	private ServerHandler() {}
+
+	public static Socket login() throws IOException {
+		Socket socket = new Socket(IP, PORT);
+		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+
+		StringBuilder stringBuilder = new StringBuilder()
+				.append(LOGIN)
+				.append(TargetApp.COMM_SEPARATOR)
+				.append(CurrentUser.toText(true));
+		printWriter.write(stringBuilder.toString());
+		printWriter.flush();
+		return socket;
+	}
+
+	public static Socket register() throws IOException {
+		Socket socket = new Socket(IP, PORT);
+		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+
+		StringBuilder stringBuilder = new StringBuilder()
+				.append(REGISTER)
+				.append(TargetApp.COMM_SEPARATOR)
+				.append(CurrentUser.toText(true));
+		printWriter.write(stringBuilder.toString());
+		printWriter.flush();
+		return socket;
+	}
 
 	public static Socket updateLocation() throws IOException, NullPointerException, EmptyMessageException {
 		Socket socket = new Socket(IP, PORT);
@@ -60,25 +88,12 @@ public class ServerHandler {
 		return socket;
 	}
 
-	public static Socket login() throws IOException {
+	public static Socket getUniqueCode() throws IOException {
 		Socket socket = new Socket(IP, PORT);
 		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 
 		StringBuilder stringBuilder = new StringBuilder()
-				.append(LOGIN)
-				.append(TargetApp.COMM_SEPARATOR)
-				.append(CurrentUser.toText(true));
-		printWriter.write(stringBuilder.toString());
-		printWriter.flush();
-		return socket;
-	}
-
-	public static Socket register() throws IOException {
-		Socket socket = new Socket(IP, PORT);
-		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-
-		StringBuilder stringBuilder = new StringBuilder()
-				.append(REGISTER)
+				.append(GET_UNIQUE_CODE)
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(CurrentUser.toText(true));
 		printWriter.write(stringBuilder.toString());
