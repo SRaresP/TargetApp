@@ -16,4 +16,5 @@
     <string name="name">Name</string>
     <string name="unique_code">Unique code:</string>
     <string name="get_unique_code">Get unique code</string>
+    <string name="don_t_have_an_account_nregister_instead">Don\'t have an account?\nRegister instead</string>
 </resources>

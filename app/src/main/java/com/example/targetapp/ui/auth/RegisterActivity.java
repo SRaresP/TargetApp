@@ -59,7 +59,9 @@ public class RegisterActivity extends AppCompatActivity {
 						//AND I HAVE NO IDEA WHY GOD HELP US ALL
 						if (response.contains(ServerHandler.REGISTERED)) {
 							Intent intent = new Intent(this, DebugActivity.class);
+							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 							startActivity(intent);
+							finish();
 						} else if (response.contains(ServerHandler.EMAIL_ALREADY_TAKEN)) {
 							Toast.makeText(this, "That email is taken", Toast.LENGTH_LONG).show();
 						} else {

@@ -62,7 +62,8 @@
                     android:inputType="textEmailAddress"
                     android:maxLength="128"
                     android:padding="10dp"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:enabled="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -89,7 +90,8 @@
                     android:inputType="textPassword"
                     android:maxLength="64"
                     android:padding="10dp"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -101,7 +103,8 @@
                 android:layout_centerHorizontal="true"
                 android:padding="10dp"
                 android:text="@string/log_in"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:enabled="false" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/logRegisterB"
@@ -110,8 +113,9 @@
                 android:layout_below="@id/logLoginB"
                 android:layout_centerHorizontal="true"
                 android:padding="10dp"
-                android:text="Don't have an account?\nRegister instead"
-                android:textSize="20sp" />
+                android:text="@string/don_t_have_an_account_nregister_instead"
+                android:textSize="20sp"
+                android:enabled="false" />
 
         </RelativeLayout>
 

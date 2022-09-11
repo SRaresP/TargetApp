@@ -50,9 +50,11 @@ public class AuthActivity extends AppCompatActivity {
 						});
 					}
 					targetApp.getMainThreadHandler().post(() -> {
-						alertDialog.dismiss();
+						//alertDialog.dismiss();
 						Intent intent = new Intent(this, DebugActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 						startActivity(intent);
+						finish();
 					});
 				} else {
 					targetApp.getMainThreadHandler().post(() -> {
@@ -89,7 +91,6 @@ public class AuthActivity extends AppCompatActivity {
 		loginB = findViewById(R.id.logLoginB);
 		registerB = findViewById(R.id.logRegisterB);
 
-		//TODO: make this alert actually show up
 		AlertDialog alertDialogAutoLogin = new AlertDialog.Builder(this)
 				.setView(new LoadingView(this, "Attempting to log in using stored credentials", true))
 				.setCancelable(false)
@@ -120,9 +121,14 @@ public class AuthActivity extends AppCompatActivity {
 
 		try {
 			CurrentUser.setCurrentUserFromDisk();
+
 			loginAndContinueAsync(alertDialogAutoLogin);
 		} catch (IOException e) {
 			Log.i(TAG, e.getMessage() + "; user is not logged in", e);
+			emailTIET.setEnabled(true);
+			passwordTIET.setEnabled(true);
+			loginB.setEnabled(true);
+			registerB.setEnabled(true);
 			//stays on this activity so the user can log in manually
 		}
 	}
