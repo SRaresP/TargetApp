@@ -11,29 +11,39 @@
     android:padding="20dp"
     tools:context=".ui.DebugActivity">
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/mainLogOutB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/log_out" />
+
     <TextView
         android:id="@+id/mainCodeLabelTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/unique_code"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:layout_below="@id/mainLogOutB"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainCodeValueTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/mainLogOutB"
         android:layout_toRightOf="@id/mainCodeLabelTV"
         android:padding="10dp"
         android:text="@string/placeholder"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/mainGetCodeB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/mainCodeLabelTV"
-        android:text="@string/get_unique_code"/>
+        android:text="@string/get_unique_code" />
 
     <TextView
         android:id="@+id/mainDateLabelTV"
@@ -42,7 +52,8 @@
         android:layout_below="@id/mainGetCodeB"
         android:padding="10dp"
         android:text="@string/date"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainDateValueTV"
@@ -52,7 +63,8 @@
         android:layout_toRightOf="@id/mainDateLabelTV"
         android:padding="10dp"
         android:text="@string/placeholder"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainLatLabelTV"
@@ -61,7 +73,8 @@
         android:layout_below="@id/mainDateLabelTV"
         android:padding="10dp"
         android:text="@string/latitude"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainLatValueTV"
@@ -71,7 +84,8 @@
         android:layout_toRightOf="@id/mainLatLabelTV"
         android:padding="10dp"
         android:text="@string/placeholder"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainLonLabelTV"
@@ -80,7 +94,8 @@
         android:layout_below="@id/mainLatLabelTV"
         android:padding="10dp"
         android:text="@string/longitude"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainLonValueTV"
@@ -90,7 +105,8 @@
         android:layout_toRightOf="@id/mainLonLabelTV"
         android:padding="10dp"
         android:text="@string/placeholder"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/mainSendBTN"
@@ -107,7 +123,8 @@
         android:layout_below="@id/mainSendBTN"
         android:padding="10dp"
         android:text="@string/location_history"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
     <TextView
         android:id="@+id/mainHistoryValueTV"
@@ -116,7 +133,8 @@
         android:layout_below="@id/mainHistoryLabelTV"
         android:padding="10dp"
         android:text="@string/placeholder"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textIsSelectable="true" />
 
 
 </RelativeLayout>

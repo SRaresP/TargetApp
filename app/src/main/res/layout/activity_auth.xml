@@ -26,7 +26,8 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:text="@string/i_could_not_find_an_account"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textIsSelectable="true" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/logLoginTV"
@@ -37,7 +38,8 @@
                 android:padding="10dp"
                 android:text="@string/log_in"
                 android:textAlignment="center"
-                android:textSize="30sp" />
+                android:textSize="30sp"
+                android:textIsSelectable="true" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/logEmailTV"
@@ -46,7 +48,8 @@
                 android:layout_below="@id/logLoginTV"
                 android:paddingHorizontal="10dp"
                 android:text="@string/email"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textIsSelectable="true" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/logEmailTIL"
@@ -73,7 +76,8 @@
                 android:layout_below="@id/logEmailTIL"
                 android:paddingHorizontal="10dp"
                 android:text="@string/password"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textIsSelectable="true" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/logPasswordTIL"

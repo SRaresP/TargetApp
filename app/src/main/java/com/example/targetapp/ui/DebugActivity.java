@@ -4,11 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.ListenableWorker;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +26,7 @@ import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
 import com.example.targetapp.server_comm.ServerHandler;
 import com.example.targetapp.server_comm.exceptions.EmptyMessageException;
+import com.example.targetapp.ui.auth.AuthActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -44,6 +50,7 @@ public class DebugActivity extends AppCompatActivity {
 	private AppCompatButton mainSendBTN;
 	private AppCompatButton mainGetCodeBTN;
 	private TextView mainCodeValueTV;
+	private AppCompatButton mainLogOutB;
 
 	private LocationRequest locationRequest;
 	private LocationCallback locationCallBack;
@@ -149,6 +156,8 @@ public class DebugActivity extends AppCompatActivity {
 		mainDateValueTV = findViewById(R.id.mainDateValueTV);
 		mainGetCodeBTN = findViewById(R.id.mainGetCodeB);
 		mainCodeValueTV = findViewById(R.id.mainCodeValueTV);
+		mainLogOutB = findViewById(R.id.mainLogOutB);
+		mainSendBTN = findViewById(R.id.mainSendBTN);
 
 		fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -195,12 +204,6 @@ public class DebugActivity extends AppCompatActivity {
 			}
 		};
 
-		try {
-			fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
-		} catch (SecurityException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-
 		mainGetCodeBTN.setOnClickListener(view -> {
 			targetApp.getExecutorService().execute(() -> {
 				try {
@@ -228,5 +231,30 @@ public class DebugActivity extends AppCompatActivity {
 				}
 			});
 		});
+
+		mainLogOutB.setOnClickListener(view -> {
+			Intent intent = new Intent(this, AuthActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.putExtra("useSavedCredentials", false);
+			fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
+			startActivity(intent);
+			finish();
+		});
+
+		mainSendBTN.setOnClickListener(view -> {
+			sendLocationUpdate();
+		});
+	}
+
+	@SuppressLint("MissingPermission")
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+
+		try {
+			fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+		} catch (SecurityException e) {
+			Log.e(TAG, e.getMessage(), e);
+		}
 	}
 }

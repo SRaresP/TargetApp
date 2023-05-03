@@ -17,7 +17,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:padding="10dp" >
             
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/regRegisterTV"
@@ -27,7 +27,8 @@
                 android:padding="10dp"
                 android:text="@string/register"
                 android:textAlignment="center"
-                android:textSize="30sp" />
+                android:textSize="30sp"
+                android:textIsSelectable="true" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/regEmailRegisterTV"
@@ -36,7 +37,8 @@
                 android:layout_below="@+id/regRegisterTV"
                 android:paddingHorizontal="10dp"
                 android:text="@string/email"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textIsSelectable="true" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/regEmailRegisterTIL"
@@ -62,7 +64,8 @@
                 android:layout_below="@id/regEmailRegisterTIL"
                 android:paddingHorizontal="10dp"
                 android:text="@string/name"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textIsSelectable="true" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/regNameRegisterTIL"
@@ -89,7 +92,8 @@
                 android:layout_below="@id/regNameRegisterTIL"
                 android:paddingHorizontal="10dp"
                 android:text="@string/password"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textIsSelectable="true" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/regPasswordRegisterTIL"

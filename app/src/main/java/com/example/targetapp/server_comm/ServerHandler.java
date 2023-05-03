@@ -1,5 +1,7 @@
 package com.example.targetapp.server_comm;
 
+import androidx.annotation.NonNull;
+
 import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.exceptions.EmptyMessageException;
 
@@ -8,19 +10,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.util.Date;
 
 public class ServerHandler {
 	private static final String IP = "192.168.100.2";
 	private static final int PORT = 8000;
 
 	//server request types
-	private static final String LOGIN = "LOGIN";
-	private static final String REGISTER = "REGISTER";
-	private static final String EDIT = "EDIT";
-	private static final String LOCATION_UPDATE = "LOCATION_UPDATE";
-	private static final String GET_UNIQUE_CODE = "GET_UNIQUE_CODE";
+	private static final String LOGIN_TARGET = "LOGIN_TARGET";
+	private static final String REGISTER_TARGET = "REGISTER_TARGET";
+	private static final String EDIT_TARGET = "EDIT_TARGET";
+	private static final String LOCATION_UPDATE_TARGET = "LOCATION_UPDATE_TARGET";
+	private static final String GET_UNIQUE_CODE_TARGET = "GET_UNIQUE_CODE_TARGET";
 
 	//replies from server
 	//positive
@@ -44,7 +44,7 @@ public class ServerHandler {
 		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 
 		StringBuilder stringBuilder = new StringBuilder()
-				.append(LOGIN)
+				.append(LOGIN_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(CurrentUser.toText(true));
 		printWriter.write(stringBuilder.toString());
@@ -57,7 +57,7 @@ public class ServerHandler {
 		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 
 		StringBuilder stringBuilder = new StringBuilder()
-				.append(REGISTER)
+				.append(REGISTER_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(CurrentUser.toText(true));
 		printWriter.write(stringBuilder.toString());
@@ -78,7 +78,7 @@ public class ServerHandler {
 
 		String lastLocation = CurrentUser.locationHistory.split(String.valueOf(TargetApp.LOC_HISTORY_SEPARATOR))[0];
 		StringBuilder stringBuilder = new StringBuilder()
-				.append(LOCATION_UPDATE)
+				.append(LOCATION_UPDATE_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(CurrentUser.toText(true))
 				.append(TargetApp.COMM_SEPARATOR)
@@ -93,7 +93,7 @@ public class ServerHandler {
 		PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 
 		StringBuilder stringBuilder = new StringBuilder()
-				.append(GET_UNIQUE_CODE)
+				.append(GET_UNIQUE_CODE_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(CurrentUser.toText(true));
 		printWriter.write(stringBuilder.toString());
@@ -101,7 +101,7 @@ public class ServerHandler {
 		return socket;
 	}
 
-	public static String receive(Socket socket) throws IOException {
+	public static String receive(final @NonNull Socket socket) throws IOException {
 
 		char[] response = new char[500];
 

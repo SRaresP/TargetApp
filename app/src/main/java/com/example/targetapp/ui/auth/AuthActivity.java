@@ -1,6 +1,7 @@
 package com.example.targetapp.ui.auth;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -30,6 +31,21 @@ public class AuthActivity extends AppCompatActivity {
 	private AppCompatButton loginB;
 	private AppCompatButton registerB;
 
+	private void setUpForManualLogin(final @Nullable AlertDialog alertDialog, final @Nullable String toToast) {
+		TargetApp.getInstance().getMainThreadHandler().post(() -> {
+			emailTIET.setEnabled(true);
+			passwordTIET.setEnabled(true);
+			loginB.setEnabled(true);
+			registerB.setEnabled(true);
+			if (toToast != null) {
+				Toast.makeText(this, toToast, Toast.LENGTH_SHORT).show();
+			}
+			if (alertDialog != null) {
+				alertDialog.dismiss();
+			}
+		});
+	}
+
 	private void loginAndContinueAsync(@NonNull final AlertDialog alertDialog) {
 		Toast.makeText(this, "Connecting to server", Toast.LENGTH_SHORT).show();
 		TargetApp targetApp = TargetApp.getInstance();
@@ -45,8 +61,7 @@ public class AuthActivity extends AppCompatActivity {
 					} catch (IOException e) {
 						Log.e(TAG, e.getMessage(), e);
 						targetApp.getMainThreadHandler().post(() -> {
-							Toast.makeText(this, "Could not save user data to disk, you will have to log in again next time", Toast.LENGTH_SHORT).show();
-							alertDialog.dismiss();
+							setUpForManualLogin(alertDialog, "Could not save user data to disk, you will have to log in again next time");
 						});
 					}
 					targetApp.getMainThreadHandler().post(() -> {
@@ -59,22 +74,18 @@ public class AuthActivity extends AppCompatActivity {
 				} else {
 					targetApp.getMainThreadHandler().post(() -> {
 						if (response.contains(ServerHandler.NOT_FOUND)) {
-							alertDialog.dismiss();
-							Toast.makeText(this, "Server could not find an account with that email address", Toast.LENGTH_LONG).show();
+							setUpForManualLogin(alertDialog, "Server could not find an account with that email address");
 						} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
-							alertDialog.dismiss();
-							Toast.makeText(this, "Entered password does not match", Toast.LENGTH_SHORT).show();
+							setUpForManualLogin(alertDialog, "Entered password does not match");
 						} else {
-							alertDialog.dismiss();
-							Toast.makeText(this, "Server sent an unexpected reply", Toast.LENGTH_SHORT).show();
+							setUpForManualLogin(alertDialog, "Server sent an unexpected reply");
 						}
 					});
 				}
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage(), e);
 				targetApp.getMainThreadHandler().post(() -> {
-					alertDialog.dismiss();
-					Toast.makeText(this, "Error communicating with server", Toast.LENGTH_LONG).show();
+					setUpForManualLogin(alertDialog, "Error communicating with server");
 				});
 			}
 		});
@@ -90,12 +101,6 @@ public class AuthActivity extends AppCompatActivity {
 		RelativeLayout innerRelLayout = findViewById(R.id.logInnerRelLayout);
 		loginB = findViewById(R.id.logLoginB);
 		registerB = findViewById(R.id.logRegisterB);
-
-		AlertDialog alertDialogAutoLogin = new AlertDialog.Builder(this)
-				.setView(new LoadingView(this, "Attempting to log in using stored credentials", true))
-				.setCancelable(false)
-				.create();
-		alertDialogAutoLogin.show();
 
 		emailTIET = findViewById(R.id.logEmailTIET);
 		passwordTIET = findViewById(R.id.logPasswordTIET);
@@ -119,17 +124,23 @@ public class AuthActivity extends AppCompatActivity {
 			startActivity(intent);
 		});
 
-		try {
-			CurrentUser.setCurrentUserFromDisk();
-
-			loginAndContinueAsync(alertDialogAutoLogin);
-		} catch (IOException e) {
-			Log.i(TAG, e.getMessage() + "; user is not logged in", e);
-			emailTIET.setEnabled(true);
-			passwordTIET.setEnabled(true);
-			loginB.setEnabled(true);
-			registerB.setEnabled(true);
-			//stays on this activity so the user can log in manually
+		if (getIntent().getBooleanExtra("useSavedCredentials", true)) {
+			AlertDialog alertDialogAutoLogin = new AlertDialog.Builder(this)
+					.setView(new LoadingView(this, "Attempting to log in using stored credentials", true))
+					.setCancelable(false)
+					.create();
+			alertDialogAutoLogin.show();
+			try {
+				CurrentUser.setFromDisk();
+				loginAndContinueAsync(alertDialogAutoLogin);
+			} catch (IOException e) {
+				//only setCurrentUserFromDisk can make the thread reach this path by throwing an exception
+				Log.i(TAG, e.getMessage() + "; user is not logged in", e);
+				setUpForManualLogin(null, null);
+			}
+		}
+		else {
+			setUpForManualLogin(null, null);
 		}
 	}
 }

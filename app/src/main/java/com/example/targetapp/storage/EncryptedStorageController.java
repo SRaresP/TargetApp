@@ -3,6 +3,8 @@ package com.example.targetapp.storage;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.targetapp.cryptography.CryptoHandler;
 
 import java.io.ByteArrayOutputStream;
@@ -101,7 +103,7 @@ public class EncryptedStorageController extends StorageController {
 		return masterPasswordFile != null;
 	}
 
-	public void add(final String fileName, final String fileContents, final String internalAppFolder, final boolean overwrite)
+	public void add(final @NonNull String fileName, final String fileContents, final @NonNull String internalAppFolder, final @NonNull boolean overwrite)
 			throws IOException {
 		File folder = new File(encryptedStorageRoot.getAbsolutePath() + internalAppFolder);
 		folder.mkdirs();
@@ -119,7 +121,7 @@ public class EncryptedStorageController extends StorageController {
 		fileOutputStream.close();
 	}
 
-	public void add(final String fileName, final String fileContents, final boolean overwrite) throws IOException {
+	public void add(final @NonNull String fileName, final String fileContents, final @NonNull boolean overwrite) throws IOException {
 		add(fileName, fileContents, "", overwrite);
 	}
 
@@ -131,7 +133,7 @@ public class EncryptedStorageController extends StorageController {
 		return folder;
 	}
 
-	public String get(final String fileName, final String folderToGetFrom) throws NullPointerException, IOException {
+	public String get(final @NonNull String fileName, final @NonNull String folderToGetFrom) throws NullPointerException, IOException {
 		File folder = new File(encryptedStorageRoot.getAbsolutePath() + folderToGetFrom);
 		folder.mkdirs();
 		File targetFile = findFile(folder, fileName, false);
@@ -155,7 +157,7 @@ public class EncryptedStorageController extends StorageController {
 		return cryptoHandler.decrypt(fileContents);
 	}
 
-	public String get(final String fileName) throws NullPointerException, IOException {
+	public String get(final @NonNull String fileName) throws NullPointerException, IOException {
 		return get(fileName, "");
 	}
 

@@ -1,5 +1,7 @@
 package com.example.targetapp.Location;
 
+import androidx.annotation.NonNull;
+
 import com.example.targetapp.TargetApp;
 
 //This class is used to process locations,
@@ -47,11 +49,11 @@ public class LocationHandler {
 		return locationToAdd + locationHistory;
 	}
 
-	public static String getLocationByIndex(String locationHistory, int locationIndex) {
+	public static String getLocationByIndex(final @NonNull String locationHistory, int locationIndex) {
 		return locationHistory.split(String.valueOf(TargetApp.LOC_HISTORY_SEPARATOR))[locationIndex];
 	}
 
-	public static String getLastLocation(String locationHistory) {
+	public static String getLastLocation(final @NonNull String locationHistory) {
 		return locationHistory.split(String.valueOf(TargetApp.LOC_HISTORY_SEPARATOR))[0];
 	}
 }

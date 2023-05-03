@@ -1,5 +1,7 @@
 package com.example.targetapp.server_comm;
 
+import androidx.annotation.NonNull;
+
 import com.example.targetapp.TargetApp;
 import com.example.targetapp.storage.EncryptedStorageController;
 
@@ -18,7 +20,7 @@ public class CurrentUser {
 	//do not call constructor, use static methods
 	private CurrentUser() { }
 
-	public static void setCurrentUser(String Email, String Name, String password, String locationHistory) {
+	public static void setCurrentUser(final @NonNull String Email, final @NonNull String Name, final @NonNull String password, final @NonNull String locationHistory) {
 		CurrentUser.email = Email;
 		CurrentUser.name = Name;
 		CurrentUser.password = password;
@@ -32,7 +34,7 @@ public class CurrentUser {
 		locationHistory = "";
 	}
 
-	public static String toText(boolean omitLocation) {
+	public static String toText(final @NonNull boolean omitLocation) {
 		if (omitLocation) {
 			return email + TargetApp.USER_SEPARATOR + name + TargetApp.USER_SEPARATOR + password;
 		} else {
@@ -40,7 +42,7 @@ public class CurrentUser {
 		}
 	}
 
-	public static void fromText(String userString) throws IllegalArgumentException {
+	public static void fromText(final @NonNull String userString) throws IllegalArgumentException {
 		String[] parameterUser = userString.split(String.valueOf(TargetApp.USER_SEPARATOR));
 		if (parameterUser.length == 4) {
 			email = parameterUser[0];
@@ -63,7 +65,7 @@ public class CurrentUser {
 		encryptedStorageController.add(SAVED_USER_FILENAME, toText(false), true);
 	}
 
-	public static void setCurrentUserFromDisk() throws IOException {
+	public static void setFromDisk() throws IOException {
 		EncryptedStorageController encryptedStorageController = EncryptedStorageController.getInstance(TargetApp.getInstance().getApplicationContext());
 		fromText(encryptedStorageController.get(SAVED_USER_FILENAME));
 	}

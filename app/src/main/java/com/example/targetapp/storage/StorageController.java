@@ -2,6 +2,8 @@ package com.example.targetapp.storage;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 
 public class StorageController {
@@ -22,7 +24,7 @@ public class StorageController {
         return new File(directory, fileName);
     }
 
-    public File findFile(final File directory, final String fileName, final boolean checkSubdirectories) {
+    public File findFile(final @NonNull File directory, final @NonNull String fileName, final @NonNull boolean checkSubdirectories) {
         if (!directory.isDirectory()) {
             return null;
         }
