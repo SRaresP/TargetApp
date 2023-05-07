@@ -5,8 +5,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RelativeLayout;
@@ -94,6 +105,17 @@ public class AuthActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+//		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+//		if (!notificationManager.areNotificationsEnabled()) {
+//			new AlertDialog.Builder(this)
+//					.setCancelable(true)
+//					.setTitle("No notification permission.")
+//					.create()
+//					.show();
+//			return;
+//		}
+
 		setContentView(R.layout.activity_auth);
 
 		TargetApp targetApp = TargetApp.getInstance();
@@ -136,11 +158,26 @@ public class AuthActivity extends AppCompatActivity {
 			} catch (IOException e) {
 				//only setCurrentUserFromDisk can make the thread reach this path by throwing an exception
 				Log.i(TAG, e.getMessage() + "; user is not logged in", e);
-				setUpForManualLogin(null, null);
+				setUpForManualLogin(alertDialogAutoLogin, null);
 			}
 		}
 		else {
 			setUpForManualLogin(null, null);
 		}
+
+//		Intent intent = new Intent(this, DebugActivity.class);
+//		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+//
+//		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TargetApp.STATUS_NOTIFICATION_CHANNEL)
+//				.setSmallIcon(R.drawable.ic_baseline_location_on_24)
+//				.setContentTitle("Your location is being tracked")
+//				.setContentText("Tap to open the app.")
+//				.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//				.setAutoCancel(false)
+//				.setContentIntent(pendingIntent);
+//		Notification statusNotification = builder.build();
+//
+//		notificationManager.notify(TargetApp.STATUS_NOTIFICATION_ID, builder.build());
 	}
 }
