@@ -30,33 +30,6 @@ import java.util.Date;
 public class LocationDriver {
 	public static final String TAG = "LocationDriver";
 
-	private static LocationRequest locationRequest;
-	private static LocationCallback locationCallBack;
-	private static boolean ready = false;
-
-	private static boolean arePermissionsGranted(Context context) {
-		boolean hasCoarsePermission =
-				ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-						== PackageManager.PERMISSION_GRANTED;
-		boolean hasFinePermission =
-				ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-						== PackageManager.PERMISSION_GRANTED;
-		boolean hasInternetPermission =
-				ActivityCompat.checkSelfPermission(context, Manifest.permission.INTERNET)
-						== PackageManager.PERMISSION_GRANTED;
-		return (hasCoarsePermission && hasFinePermission && hasInternetPermission);
-	}
-
-	private static void requestPermissions(Activity activity) {
-		ActivityCompat.requestPermissions(
-				activity,
-				new String[]{
-						Manifest.permission.ACCESS_COARSE_LOCATION,
-						Manifest.permission.ACCESS_FINE_LOCATION,
-						Manifest.permission.INTERNET},
-				TargetApp.PERM_REQ_CODE);
-	}
-
 	public static void sendLocationUpdate(Context context) {
 		TargetApp.getInstance().getExecutorService().execute(() -> {
 			String response = "";
@@ -86,61 +59,5 @@ public class LocationDriver {
 				}
 			});
 		});
-	}
-
-	public static void setup(DebugActivity activity, FusedLocationProviderClient fusedLocationProviderClient) {
-		locationRequest = LocationRequest.create();
-		locationRequest.setInterval(TargetApp.INTERVAL_USUAL);
-		locationRequest.setFastestInterval(TargetApp.INTERVAL_FASTEST);
-		locationRequest.setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
-
-		locationCallBack = new LocationCallback() {
-			@SuppressLint("MissingPermission")
-			@Override
-			public void onLocationResult(@NonNull LocationResult locationResult) {
-				super.onLocationResult(locationResult);
-				fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
-					//update current location ui
-					activity.showLocation(location.getLatitude(), location.getLongitude());
-
-					//add location to current user
-					String lastLocation = String.valueOf((new Date()).getTime()) +
-							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							location.getLatitude() +
-							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							location.getLongitude();
-					try {
-						CurrentUser.locationHistory = LocationHandler.AddLocation(CurrentUser.locationHistory, lastLocation);
-					} catch (IllegalArgumentException e) {
-						Log.e(TAG, e.getMessage(), e);
-					}
-
-					//sync to server
-					sendLocationUpdate(activity);
-				});
-			}
-		};
-
-		ready = true;
-	}
-
-	@SuppressLint("MissingPermission")
-	public static void start(DebugActivity activity, FusedLocationProviderClient fusedLocationProviderClient) {
-		if (!arePermissionsGranted(activity)) {
-			requestPermissions(activity);
-		}
-		if (!ready) {
-			setup(activity, fusedLocationProviderClient);
-		}
-		try {
-			fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
-		} catch (SecurityException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-	}
-
-	@SuppressLint("MissingPermission")
-	public static void stop(FusedLocationProviderClient fusedLocationProviderClient) {
-		fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
 	}
 }

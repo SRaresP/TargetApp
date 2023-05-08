@@ -44,7 +44,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
 
-		//TODO: get this provider from an intent
 		/*fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_PASSIVE, null).addOnSuccessListener(location -> {
 			LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f));

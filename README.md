@@ -3,11 +3,17 @@ Part of the Geofencing package. This app is used by the person being tracked.
 
 ## Todo
 
-Implement background running of the TargetApp.
+Improve the UI a bit, including the service notification.
 
-Fix leaked window at AuthActivity.java line 132
+Test that location updates are stopped properly on logout.
+
+Add a map to display current position.
+
+Add geofences to that map.
 
 ## Done
+
+Implemented background running of the TargetApp.
 
 Implement one-time use tracking tokens to be used with server, for security, in preparation for the implementation of OverseerApp.
 

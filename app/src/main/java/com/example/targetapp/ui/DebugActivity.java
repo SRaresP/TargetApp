@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.targetapp.Location.LocationDriver;
 import com.example.targetapp.Location.LocationHandler;
+import com.example.targetapp.Location.LocationService;
 import com.example.targetapp.R;
 import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
@@ -48,7 +49,12 @@ public class DebugActivity extends AppCompatActivity {
 	private TextView mainCodeValueTV;
 	private AppCompatButton mainLogOutB;
 
-	FusedLocationProviderClient fusedLocationProviderClient;
+	private static LocationRequest locationRequest;
+	private static LocationCallback locationCallBack;
+
+	private FusedLocationProviderClient fusedLocationProviderClient;
+
+	private boolean shouldStartLocationServiceOnPause = true;
 
 	@SuppressLint("MissingPermission")
 	@Override
@@ -65,10 +71,65 @@ public class DebugActivity extends AppCompatActivity {
 	}
 
 	@SuppressLint("MissingPermission")
+	public static void startUpdates(DebugActivity activity, FusedLocationProviderClient fusedLocationProviderClient, String stuff) {
+		locationRequest = LocationRequest.create();
+		locationRequest.setInterval(TargetApp.INTERVAL_USUAL);
+		locationRequest.setFastestInterval(TargetApp.INTERVAL_FASTEST);
+		locationRequest.setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
+
+		locationCallBack = new LocationCallback() {
+			@SuppressLint("MissingPermission")
+			@Override
+			public void onLocationResult(@NonNull LocationResult locationResult) {
+				super.onLocationResult(locationResult);
+				Log.e(TAG, stuff);
+				fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+					//update current location ui
+					activity.showLocation(location.getLatitude(), location.getLongitude());
+
+					//add location to current user
+					String lastLocation = String.valueOf((new Date()).getTime()) +
+							TargetApp.DATE_LAT_LONG_SEPARATOR +
+							location.getLatitude() +
+							TargetApp.DATE_LAT_LONG_SEPARATOR +
+							location.getLongitude();
+					try {
+						CurrentUser.locationHistory = LocationHandler.AddLocation(CurrentUser.locationHistory, lastLocation);
+					} catch (IllegalArgumentException e) {
+						Log.e(TAG, e.getMessage(), e);
+					}
+
+					//sync to server
+					LocationDriver.sendLocationUpdate(activity);
+				});
+			}
+		};
+		try {
+			fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+		} catch (SecurityException e) {
+			Log.e(TAG, e.getMessage(), e);
+		}
+	}
+
+	@SuppressLint("MissingPermission")
+	public static void stopUpdates(FusedLocationProviderClient fusedLocationProviderClient) {
+		fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
+	}
+
+	@SuppressLint("MissingPermission")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_debug);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		shouldStartLocationServiceOnPause = true;
+		Intent intent = new Intent(this, LocationService.class);
+		stopService(intent);
+
 
 		TargetApp targetApp = TargetApp.getInstance();
 
@@ -113,23 +174,31 @@ public class DebugActivity extends AppCompatActivity {
 		});
 
 		mainLogOutB.setOnClickListener(view -> {
-			Intent intent = new Intent(this, AuthActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-			intent.putExtra("useSavedCredentials", false);
-			LocationDriver.stop(fusedLocationProviderClient);
-			startActivity(intent);
+			Intent logOutIntent = new Intent(this, AuthActivity.class);
+			logOutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			logOutIntent.putExtra("useSavedCredentials", false);
+			stopUpdates(fusedLocationProviderClient);
+			shouldStartLocationServiceOnPause = false;
+			startActivity(logOutIntent);
 			finish();
 		});
 
 		mainSendBTN.setOnClickListener(view -> {
 			LocationDriver.sendLocationUpdate(this);
 		});
+		startUpdates(this, fusedLocationProviderClient, "activity");
+		Log.e(TAG, "resumed");
 	}
 
 	@Override
-	protected void onPostResume() {
-		super.onPostResume();
-		LocationDriver.start(this, fusedLocationProviderClient);
+	protected void onPause() {
+		super.onPause();
+		stopUpdates(fusedLocationProviderClient);
+		if (shouldStartLocationServiceOnPause) {
+			Intent intent = new Intent(this, LocationService.class);
+			startForegroundService(intent);
+		}
+		Log.e(TAG, "paused");
 	}
 
 	public void showLocation(double latitude, double longitude) {

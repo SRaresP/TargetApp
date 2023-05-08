@@ -42,6 +42,29 @@ public class AuthActivity extends AppCompatActivity {
 	private AppCompatButton loginB;
 	private AppCompatButton registerB;
 
+	private static boolean arePermissionsGranted(Context context) {
+		boolean hasCoarsePermission =
+				ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+						== PackageManager.PERMISSION_GRANTED;
+		boolean hasFinePermission =
+				ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+						== PackageManager.PERMISSION_GRANTED;
+		boolean hasInternetPermission =
+				ActivityCompat.checkSelfPermission(context, Manifest.permission.INTERNET)
+						== PackageManager.PERMISSION_GRANTED;
+		return (hasCoarsePermission && hasFinePermission && hasInternetPermission);
+	}
+
+	private static void requestPermissions(Activity activity) {
+		ActivityCompat.requestPermissions(
+				activity,
+				new String[]{
+						Manifest.permission.ACCESS_COARSE_LOCATION,
+						Manifest.permission.ACCESS_FINE_LOCATION,
+						Manifest.permission.INTERNET},
+				TargetApp.PERM_REQ_CODE);
+	}
+
 	private void setUpForManualLogin(final @Nullable AlertDialog alertDialog, final @Nullable String toToast) {
 		TargetApp.getInstance().getMainThreadHandler().post(() -> {
 			emailTIET.setEnabled(true);
@@ -79,6 +102,7 @@ public class AuthActivity extends AppCompatActivity {
 						//alertDialog.dismiss();
 						Intent intent = new Intent(this, DebugActivity.class);
 						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+						alertDialog.dismiss();
 						startActivity(intent);
 						finish();
 					});
@@ -106,19 +130,13 @@ public class AuthActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-//		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-//		if (!notificationManager.areNotificationsEnabled()) {
-//			new AlertDialog.Builder(this)
-//					.setCancelable(true)
-//					.setTitle("No notification permission.")
-//					.create()
-//					.show();
-//			return;
-//		}
-
 		setContentView(R.layout.activity_auth);
 
 		TargetApp targetApp = TargetApp.getInstance();
+
+		if (!arePermissionsGranted(this)) {
+			requestPermissions(this);
+		}
 
 		RelativeLayout innerRelLayout = findViewById(R.id.logInnerRelLayout);
 		loginB = findViewById(R.id.logLoginB);
@@ -164,20 +182,5 @@ public class AuthActivity extends AppCompatActivity {
 		else {
 			setUpForManualLogin(null, null);
 		}
-
-//		Intent intent = new Intent(this, DebugActivity.class);
-//		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-//
-//		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TargetApp.STATUS_NOTIFICATION_CHANNEL)
-//				.setSmallIcon(R.drawable.ic_baseline_location_on_24)
-//				.setContentTitle("Your location is being tracked")
-//				.setContentText("Tap to open the app.")
-//				.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//				.setAutoCancel(false)
-//				.setContentIntent(pendingIntent);
-//		Notification statusNotification = builder.build();
-//
-//		notificationManager.notify(TargetApp.STATUS_NOTIFICATION_ID, builder.build());
 	}
 }
