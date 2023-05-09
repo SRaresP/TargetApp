@@ -44,7 +44,10 @@ public class TargetApp extends Application {
 		super.onCreate();
 		instance = this;
 
-		statusNotificationChannel = new NotificationChannel(STATUS_NOTIFICATION_CHANNEL, "Status notification channel", NotificationManager.IMPORTANCE_NONE);
+		statusNotificationChannel = new NotificationChannel(
+				STATUS_NOTIFICATION_CHANNEL,
+				"Status notification channel",
+				NotificationManager.IMPORTANCE_NONE);
 		NotificationManager notificationManager = getSystemService(NotificationManager.class);
 		notificationManager.createNotificationChannel(statusNotificationChannel);
 	}

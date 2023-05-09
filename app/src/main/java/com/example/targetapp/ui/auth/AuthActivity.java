@@ -42,7 +42,7 @@ public class AuthActivity extends AppCompatActivity {
 	private AppCompatButton loginB;
 	private AppCompatButton registerB;
 
-	private static boolean arePermissionsGranted(Context context) {
+	private static boolean arePermissionsGranted(@NonNull Context context) {
 		boolean hasCoarsePermission =
 				ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
 						== PackageManager.PERMISSION_GRANTED;
@@ -55,7 +55,7 @@ public class AuthActivity extends AppCompatActivity {
 		return (hasCoarsePermission && hasFinePermission && hasInternetPermission);
 	}
 
-	private static void requestPermissions(Activity activity) {
+	private static void requestPermissions(@NonNull Activity activity) {
 		ActivityCompat.requestPermissions(
 				activity,
 				new String[]{
@@ -65,7 +65,9 @@ public class AuthActivity extends AppCompatActivity {
 				TargetApp.PERM_REQ_CODE);
 	}
 
-	private void setUpForManualLogin(final @Nullable AlertDialog alertDialog, final @Nullable String toToast) {
+	private void setUpForManualLogin(
+			final @Nullable AlertDialog alertDialog,
+			final @Nullable String toToast) {
 		TargetApp.getInstance().getMainThreadHandler().post(() -> {
 			emailTIET.setEnabled(true);
 			passwordTIET.setEnabled(true);

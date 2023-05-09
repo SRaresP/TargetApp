@@ -20,7 +20,11 @@ public class CurrentUser {
 	//do not call constructor, use static methods
 	private CurrentUser() { }
 
-	public static void setCurrentUser(final @NonNull String Email, final @NonNull String Name, final @NonNull String password, final @NonNull String locationHistory) {
+	public static void setCurrentUser(
+			final @NonNull String Email,
+			final @NonNull String Name,
+			final @NonNull String password,
+			final @NonNull String locationHistory) {
 		CurrentUser.email = Email;
 		CurrentUser.name = Name;
 		CurrentUser.password = password;
@@ -34,7 +38,7 @@ public class CurrentUser {
 		locationHistory = "";
 	}
 
-	public static String toText(final @NonNull boolean omitLocation) {
+	public static String toText(final boolean omitLocation) {
 		if (omitLocation) {
 			return email + TargetApp.USER_SEPARATOR + name + TargetApp.USER_SEPARATOR + password;
 		} else {

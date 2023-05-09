@@ -30,7 +30,7 @@ import java.util.Date;
 public class LocationDriver {
 	public static final String TAG = "LocationDriver";
 
-	public static void sendLocationUpdate(Context context) {
+	public static void sendLocationUpdate(@NonNull Context context) {
 		TargetApp.getInstance().getExecutorService().execute(() -> {
 			String response = "";
 			//send and receive from server

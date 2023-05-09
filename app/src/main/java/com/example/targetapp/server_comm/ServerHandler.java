@@ -103,6 +103,7 @@ public class ServerHandler {
 
 	public static String receive(final @NonNull Socket socket) throws IOException {
 
+		// TODO: before release make sure this value isn't too low
 		char[] response = new char[500];
 
 		InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());

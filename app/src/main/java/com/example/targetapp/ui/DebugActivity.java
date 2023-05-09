@@ -71,7 +71,9 @@ public class DebugActivity extends AppCompatActivity {
 	}
 
 	@SuppressLint("MissingPermission")
-	public static void startUpdates(DebugActivity activity, FusedLocationProviderClient fusedLocationProviderClient, String stuff) {
+	public static void startUpdates(
+			@NonNull DebugActivity activity,
+			@NonNull FusedLocationProviderClient fusedLocationProviderClient) {
 		locationRequest = LocationRequest.create();
 		locationRequest.setInterval(TargetApp.INTERVAL_USUAL);
 		locationRequest.setFastestInterval(TargetApp.INTERVAL_FASTEST);
@@ -82,7 +84,6 @@ public class DebugActivity extends AppCompatActivity {
 			@Override
 			public void onLocationResult(@NonNull LocationResult locationResult) {
 				super.onLocationResult(locationResult);
-				Log.e(TAG, stuff);
 				fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
 					//update current location ui
 					activity.showLocation(location.getLatitude(), location.getLongitude());
@@ -112,7 +113,7 @@ public class DebugActivity extends AppCompatActivity {
 	}
 
 	@SuppressLint("MissingPermission")
-	public static void stopUpdates(FusedLocationProviderClient fusedLocationProviderClient) {
+	public static void stopUpdates(@NonNull FusedLocationProviderClient fusedLocationProviderClient) {
 		fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
 	}
 
@@ -186,7 +187,7 @@ public class DebugActivity extends AppCompatActivity {
 		mainSendBTN.setOnClickListener(view -> {
 			LocationDriver.sendLocationUpdate(this);
 		});
-		startUpdates(this, fusedLocationProviderClient, "activity");
+		startUpdates(this, fusedLocationProviderClient);
 		Log.e(TAG, "resumed");
 	}
 

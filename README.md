@@ -3,10 +3,6 @@ Part of the Geofencing package. This app is used by the person being tracked.
 
 ## Todo
 
-Improve the UI a bit, including the service notification.
-
-Test that location updates are stopped properly on logout.
-
 Add a map to display current position.
 
 Add geofences to that map.
