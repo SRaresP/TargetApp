@@ -3,6 +3,8 @@ Part of the Geofencing package. This app is used by the person being tracked.
 
 ## Todo
 
+Alert user when location is off.
+
 Add a map to display current position.
 
 Add geofences to that map.

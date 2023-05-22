@@ -65,6 +65,21 @@ public class AuthActivity extends AppCompatActivity {
 				TargetApp.PERM_REQ_CODE);
 	}
 
+	@SuppressLint("MissingPermission")
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode == TargetApp.PERM_REQ_CODE) {
+			if ((grantResults.length < 1) || (grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
+				Toast.makeText(this, "App needs location permissions to run", Toast.LENGTH_LONG).show();
+				finish();
+			} else {
+				continueCreating();
+				Toast.makeText(this, "Thank you!", Toast.LENGTH_LONG).show();
+			}
+		}
+	}
+
 	private void setUpForManualLogin(
 			final @Nullable AlertDialog alertDialog,
 			final @Nullable String toToast) {
@@ -128,18 +143,7 @@ public class AuthActivity extends AppCompatActivity {
 		});
 	}
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.activity_auth);
-
-		TargetApp targetApp = TargetApp.getInstance();
-
-		if (!arePermissionsGranted(this)) {
-			requestPermissions(this);
-		}
-
+	private void continueCreating() {
 		RelativeLayout innerRelLayout = findViewById(R.id.logInnerRelLayout);
 		loginB = findViewById(R.id.logLoginB);
 		registerB = findViewById(R.id.logRegisterB);
@@ -183,6 +187,19 @@ public class AuthActivity extends AppCompatActivity {
 		}
 		else {
 			setUpForManualLogin(null, null);
+		}
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_auth);
+
+		if (!arePermissionsGranted(this)) {
+			requestPermissions(this);
+		} else {
+			continueCreating();
 		}
 	}
 }

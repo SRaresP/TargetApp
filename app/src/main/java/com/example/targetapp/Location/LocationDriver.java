@@ -36,7 +36,7 @@ public class LocationDriver {
 			//send and receive from server
 			try {
 				Socket socket = ServerHandler.updateLocation();
-				response = ServerHandler.receive(socket);
+				response = ServerHandler.receive(socket).trim();
 			} catch (IOException | EmptyMessageException e) {
 				TargetApp.getInstance().getMainThreadHandler().post(() -> {
 					Toast.makeText(context, "Server communication threw exception: " + e.getMessage(), Toast.LENGTH_LONG).show();

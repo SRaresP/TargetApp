@@ -104,17 +104,6 @@ public class LocationService extends Service {
 			stopSelf();
 		}
 
-		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-		if (!notificationManager.areNotificationsEnabled()) {
-			new AlertDialog.Builder(this)
-					.setCancelable(true)
-					.setTitle("No notification permission.")
-					.create()
-					.show();
-			stopSelf();
-			return START_STICKY;
-		}
-
 		Intent toAppIntent = new Intent(this, DebugActivity.class);
 		toAppIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, 0, toAppIntent, PendingIntent.FLAG_IMMUTABLE);

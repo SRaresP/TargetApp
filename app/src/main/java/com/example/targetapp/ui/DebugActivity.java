@@ -4,10 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,6 +38,8 @@ import com.google.android.gms.maps.model.LatLng;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DebugActivity extends AppCompatActivity {
 	private static final String TAG = "MainActivity";
@@ -122,6 +126,25 @@ public class DebugActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_debug);
+
+		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+		AlertDialog noNotifPerdialog;
+		if (!notificationManager.areNotificationsEnabled()) {
+			noNotifPerdialog = new AlertDialog.Builder(this)
+					.setCancelable(false)
+					.setTitle("No notification permission.")
+					.setMessage("Please enable app notifications for OverseerApp and try restarting the application. The app will quit in 10 seconds.")
+					.create();
+			noNotifPerdialog.show();
+			Timer timer = new Timer(true);
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					noNotifPerdialog.dismiss();
+					DebugActivity.this.finish();
+				}
+			}, 10000);
+		}
 	}
 
 	@Override
