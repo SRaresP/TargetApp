@@ -9,7 +9,11 @@ Add a map to display current position.
 
 Add geofences to that map.
 
+Handle connection resets when trying to communicate with the server. As in, if no response is received in time, log an error or something.
+
 ## Done
+
+Update intervals are now set every time TargetApp sends a location update, based on the fastest interval set by the overseers.
 
 Implemented background running of the TargetApp.
 

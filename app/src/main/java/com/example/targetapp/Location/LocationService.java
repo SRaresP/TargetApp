@@ -1,7 +1,6 @@
 package com.example.targetapp.Location;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -9,15 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.example.targetapp.R;
 import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
+import com.example.targetapp.server_comm.ServerHandler;
+import com.example.targetapp.server_comm.exceptions.EmptyMessageException;
 import com.example.targetapp.ui.DebugActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -26,6 +27,8 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.Date;
 
 public class LocationService extends Service {
@@ -57,9 +60,9 @@ public class LocationService extends Service {
 					//add location to current user
 					String lastLocation = String.valueOf((new Date()).getTime()) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							location.getLatitude() +
+							(location.getLatitude() + Math.random() / 10) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							location.getLongitude();
+							(location.getLongitude() + Math.random() / 10);
 					try {
 						CurrentUser.locationHistory = LocationHandler.AddLocation(CurrentUser.locationHistory, lastLocation);
 					} catch (IllegalArgumentException e) {
@@ -67,10 +70,39 @@ public class LocationService extends Service {
 					}
 
 					//sync to server
-					LocationDriver.sendLocationUpdate(context);
+					TargetApp.getInstance().getExecutorService().execute(() -> {
+						try {
+							Socket socket = ServerHandler.updateLocation();
+							String response = ServerHandler.receive(socket).trim();
+							TargetApp.getInstance().getMainThreadHandler().post(() -> {
+								if (response.contains(ServerHandler.LOCATION_UPDATED)) {
+									try {
+										int newInterval = Integer.parseInt(response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1]);
+										locationRequest.setInterval(newInterval);
+										fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+										Toast.makeText(context, "Server reports successful location update!", Toast.LENGTH_SHORT).show();
+									} catch (Exception e) {
+										Log.e(TAG, e.getMessage());
+										Toast.makeText(context, "Exception on location update!", Toast.LENGTH_SHORT).show();
+									}
+								} else if (response.contains(ServerHandler.NOT_FOUND)) {
+									Toast.makeText(context, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
+								} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
+									Toast.makeText(context, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
+								} else if (response.contains(ServerHandler.UNDEFINED_CASE)) {
+									Toast.makeText(context, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
+								} else {
+									Toast.makeText(context, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
+								}
+							});
+						} catch (IOException | EmptyMessageException e) {
+							Log.e(TAG, e.getMessage());
+						}
+					});
 				});
 			}
 		};
+
 		try {
 			fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
 		} catch (SecurityException e) {

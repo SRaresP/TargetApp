@@ -3,14 +3,10 @@ package com.example.targetapp.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -18,7 +14,6 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.targetapp.Location.LocationDriver;
 import com.example.targetapp.Location.LocationHandler;
 import com.example.targetapp.Location.LocationService;
 import com.example.targetapp.R;
@@ -33,7 +28,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -75,7 +69,7 @@ public class DebugActivity extends AppCompatActivity {
 	}
 
 	@SuppressLint("MissingPermission")
-	public static void startUpdates(
+	public void startUpdates(
 			@NonNull DebugActivity activity,
 			@NonNull FusedLocationProviderClient fusedLocationProviderClient) {
 		locationRequest = LocationRequest.create();
@@ -105,7 +99,35 @@ public class DebugActivity extends AppCompatActivity {
 					}
 
 					//sync to server
-					LocationDriver.sendLocationUpdate(activity);
+					TargetApp.getInstance().getExecutorService().execute(() -> {
+						try {
+							Socket socket = ServerHandler.updateLocation();
+							String response = ServerHandler.receive(socket).trim();
+							TargetApp.getInstance().getMainThreadHandler().post(() -> {
+								if (response.contains(ServerHandler.LOCATION_UPDATED)) {
+									try {
+										int newInterval = Integer.parseInt(response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1]);
+										locationRequest.setInterval(newInterval);
+										fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+										Toast.makeText(DebugActivity.this, "Server reports successful location update!", Toast.LENGTH_SHORT).show();
+									} catch (Exception e) {
+										Log.e(TAG, e.getMessage());
+										Toast.makeText(DebugActivity.this, "Exception on location update!", Toast.LENGTH_SHORT).show();
+									}
+								} else if (response.contains(ServerHandler.NOT_FOUND)) {
+									Toast.makeText(DebugActivity.this, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
+								} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
+									Toast.makeText(DebugActivity.this, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
+								} else if (response.contains(ServerHandler.UNDEFINED_CASE)) {
+									Toast.makeText(DebugActivity.this, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
+								} else {
+									Toast.makeText(DebugActivity.this, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
+								}
+							});
+						} catch (IOException | EmptyMessageException e) {
+							Log.e(TAG, e.getMessage());
+						}
+					});
 				});
 			}
 		};
@@ -147,6 +169,7 @@ public class DebugActivity extends AppCompatActivity {
 		}
 	}
 
+	@SuppressLint("MissingPermission")
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -208,7 +231,36 @@ public class DebugActivity extends AppCompatActivity {
 		});
 
 		mainSendBTN.setOnClickListener(view -> {
-			LocationDriver.sendLocationUpdate(this);
+			//sync to server
+			TargetApp.getInstance().getExecutorService().execute(() -> {
+				try {
+					Socket socket = ServerHandler.updateLocation();
+					String response = ServerHandler.receive(socket).trim();
+					TargetApp.getInstance().getMainThreadHandler().post(() -> {
+						if (response.contains(ServerHandler.LOCATION_UPDATED)) {
+							try {
+								int newInterval = Integer.parseInt(response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1]);
+								locationRequest.setInterval(newInterval);
+								fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+								Toast.makeText(DebugActivity.this, "Server reports successful location update!", Toast.LENGTH_SHORT).show();
+							} catch (Exception e) {
+								Log.e(TAG, e.getMessage());
+								Toast.makeText(DebugActivity.this, "Exception on location update!", Toast.LENGTH_SHORT).show();
+							}
+						} else if (response.contains(ServerHandler.NOT_FOUND)) {
+							Toast.makeText(DebugActivity.this, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
+						} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
+							Toast.makeText(DebugActivity.this, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
+						} else if (response.contains(ServerHandler.UNDEFINED_CASE)) {
+							Toast.makeText(DebugActivity.this, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
+						} else {
+							Toast.makeText(DebugActivity.this, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
+						}
+					});
+				} catch (IOException | EmptyMessageException e) {
+					Log.e(TAG, e.getMessage());
+				}
+			});
 		});
 		startUpdates(this, fusedLocationProviderClient);
 		Log.e(TAG, "resumed");
