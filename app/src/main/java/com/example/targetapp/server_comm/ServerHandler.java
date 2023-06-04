@@ -15,6 +15,8 @@ public class ServerHandler {
 	private static final String IP = "192.168.100.2";
 	private static final int PORT = 8000;
 
+	private static final String END = "<_-END-_>";
+
 	//server request types
 	private static final String LOGIN_TARGET = "LOGIN_TARGET";
 	private static final String REGISTER_TARGET = "REGISTER_TARGET";
@@ -46,7 +48,8 @@ public class ServerHandler {
 		StringBuilder stringBuilder = new StringBuilder()
 				.append(LOGIN_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
-				.append(CurrentUser.toText(true));
+				.append(CurrentUser.toText(true))
+				.append(END);
 		printWriter.write(stringBuilder.toString());
 		printWriter.flush();
 		return socket;
@@ -59,7 +62,8 @@ public class ServerHandler {
 		StringBuilder stringBuilder = new StringBuilder()
 				.append(REGISTER_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
-				.append(CurrentUser.toText(true));
+				.append(CurrentUser.toText(true))
+				.append(END);
 		printWriter.write(stringBuilder.toString());
 		printWriter.flush();
 		return socket;
@@ -82,7 +86,8 @@ public class ServerHandler {
 				.append(TargetApp.COMM_SEPARATOR)
 				.append(CurrentUser.toText(true))
 				.append(TargetApp.COMM_SEPARATOR)
-				.append(lastLocation);
+				.append(lastLocation)
+				.append(END);
 		printWriter.write(stringBuilder.toString());
 		printWriter.flush();
 		return socket;
@@ -95,23 +100,30 @@ public class ServerHandler {
 		StringBuilder stringBuilder = new StringBuilder()
 				.append(GET_UNIQUE_CODE_TARGET)
 				.append(TargetApp.COMM_SEPARATOR)
-				.append(CurrentUser.toText(true));
+				.append(CurrentUser.toText(true))
+				.append(END);
 		printWriter.write(stringBuilder.toString());
 		printWriter.flush();
 		return socket;
 	}
 
 	public static String receive(final @NonNull Socket socket) throws IOException {
-
-		// TODO: before release make sure this value isn't too low
 		char[] response = new char[500];
+		String finalResponse = "";
 
 		InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-		bufferedReader.read(response);
+		while (true) {
+			bufferedReader.read(response);
+			finalResponse += String.valueOf(response);
+			if (finalResponse.contains(END)) {
+				break;
+			}
+		}
 		socket.close();
 
-		return String.valueOf(response);
+		finalResponse = finalResponse.trim();
+		return finalResponse.split(END)[0];
 	}
 }
