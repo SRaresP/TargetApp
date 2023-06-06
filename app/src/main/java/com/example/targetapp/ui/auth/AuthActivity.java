@@ -6,15 +6,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,7 +22,7 @@ import com.example.targetapp.R;
 import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
 import com.example.targetapp.server_comm.ServerHandler;
-import com.example.targetapp.ui.DebugActivity;
+import com.example.targetapp.ui.MapActivity;
 import com.example.targetapp.ui.custom.LoadingView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -117,7 +112,7 @@ public class AuthActivity extends AppCompatActivity {
 					}
 					targetApp.getMainThreadHandler().post(() -> {
 						//alertDialog.dismiss();
-						Intent intent = new Intent(this, DebugActivity.class);
+						Intent intent = new Intent(this, MapActivity.class);
 						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 						alertDialog.dismiss();
 						startActivity(intent);

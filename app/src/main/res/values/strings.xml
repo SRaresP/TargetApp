@@ -18,4 +18,7 @@
     <string name="get_unique_code">Get unique code</string>
     <string name="don_t_have_an_account_nregister_instead">Don\'t have an account?\nRegister instead</string>
     <string name="log_out">Log Out</string>
+    <string name="back">Back</string>
+    <string name="your_unique_code">Your unique code:</string>
+    <string name="camera_tracks_location">Camera tracks location</string>
 </resources>

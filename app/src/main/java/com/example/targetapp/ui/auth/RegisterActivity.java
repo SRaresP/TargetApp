@@ -13,7 +13,7 @@ import com.example.targetapp.R;
 import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
 import com.example.targetapp.server_comm.ServerHandler;
-import com.example.targetapp.ui.DebugActivity;
+import com.example.targetapp.ui.MapActivity;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
 						//THIS IF ONLY WORKS IF I USE "CONTAINS" INSTEAD OF "EQUALS"
 						//AND I HAVE NO IDEA WHY GOD HELP US ALL
 						if (response.contains(ServerHandler.REGISTERED)) {
-							Intent intent = new Intent(this, DebugActivity.class);
+							Intent intent = new Intent(this, MapActivity.class);
 							intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 							startActivity(intent);
 							finish();

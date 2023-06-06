@@ -19,7 +19,7 @@ import com.example.targetapp.TargetApp;
 import com.example.targetapp.server_comm.CurrentUser;
 import com.example.targetapp.server_comm.ServerHandler;
 import com.example.targetapp.server_comm.exceptions.EmptyMessageException;
-import com.example.targetapp.ui.DebugActivity;
+import com.example.targetapp.ui.MapActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -58,11 +58,12 @@ public class LocationService extends Service {
 				super.onLocationResult(locationResult);
 				fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
 					//add location to current user
+					// TODO: remove randomness
 					String lastLocation = String.valueOf((new Date()).getTime()) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							(location.getLatitude() + Math.random() / 10) +
+							(location.getLatitude() + Math.random() / 100) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							(location.getLongitude() + Math.random() / 10);
+							(location.getLongitude() + Math.random() / 100);
 					try {
 						CurrentUser.locationHistory = LocationHandler.AddLocation(CurrentUser.locationHistory, lastLocation);
 					} catch (IllegalArgumentException e) {
@@ -136,7 +137,7 @@ public class LocationService extends Service {
 			stopSelf();
 		}
 
-		Intent toAppIntent = new Intent(this, DebugActivity.class);
+		Intent toAppIntent = new Intent(this, MapActivity.class);
 		toAppIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, 0, toAppIntent, PendingIntent.FLAG_IMMUTABLE);
 

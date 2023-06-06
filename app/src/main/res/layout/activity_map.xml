@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The ID's in this file should always start with
+"main" to denote the activity -->
+
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.MapActivity" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#55000000">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/mainMoveCamTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/camera_tracks_location"
+            map:layout_constraintTop_toTopOf="parent"
+            map:layout_constraintBottom_toTopOf="@id/mainGetCodeB"
+            map:layout_constraintLeft_toLeftOf="parent"
+            map:layout_constraintRight_toLeftOf="@id/mainMoveCamS"
+            map:layout_constraintHorizontal_chainStyle="packed"
+            android:paddingRight="10dp"
+            />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/mainMoveCamS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            map:layout_constraintTop_toTopOf="parent"
+            map:layout_constraintRight_toRightOf="parent"
+            map:layout_constraintLeft_toRightOf="@id/mainMoveCamTV"
+            map:layout_constraintHorizontal_chainStyle="packed"
+            android:paddingLeft="10dp"
+            android:checked="true"
+            />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/mainGetCodeB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/get_unique_code"
+            map:layout_constraintTop_toBottomOf="@id/mainMoveCamS"
+            map:layout_constraintBottom_toBottomOf="parent"
+            map:layout_constraintLeft_toLeftOf="parent"
+            map:layout_constraintRight_toLeftOf="@id/mainLogOutB"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/mainLogOutB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/mainGetCodeB"
+            android:text="@string/log_out"
+            map:layout_constraintTop_toBottomOf="@id/mainMoveCamS"
+            map:layout_constraintBottom_toBottomOf="parent"
+            map:layout_constraintRight_toRightOf="parent"
+            map:layout_constraintLeft_toRightOf="@id/mainGetCodeB"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

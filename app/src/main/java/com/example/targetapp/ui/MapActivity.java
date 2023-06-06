@@ -3,21 +3,24 @@ package com.example.targetapp.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.targetapp.Location.LocationHandler;
 import com.example.targetapp.Location.LocationService;
 import com.example.targetapp.R;
 import com.example.targetapp.TargetApp;
+import com.example.targetapp.databinding.ActivityMapBinding;
 import com.example.targetapp.server_comm.CurrentUser;
 import com.example.targetapp.server_comm.ServerHandler;
 import com.example.targetapp.server_comm.exceptions.EmptyMessageException;
@@ -28,6 +31,13 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -35,24 +45,26 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class DebugActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 	private static final String TAG = "MainActivity";
 
-	private TextView mainLatValueTV;
-	private TextView mainLonValueTV;
-	private TextView mainHistoryValueTV;
-	private TextView mainDateValueTV;
-	private AppCompatButton mainSendBTN;
+	private GoogleMap map;
+	private ActivityMapBinding binding;
+
 	private AppCompatButton mainGetCodeBTN;
-	private TextView mainCodeValueTV;
 	private AppCompatButton mainLogOutB;
+	private Dialog codeDialog;
+	private SwitchCompat moveSwitch;
 
 	private static LocationRequest locationRequest;
 	private static LocationCallback locationCallBack;
 
 	private FusedLocationProviderClient fusedLocationProviderClient;
 
+	private Marker userMarker;
+
 	private boolean shouldStartLocationServiceOnPause = true;
+	private boolean camShouldTrackPosition = true;
 
 	@SuppressLint("MissingPermission")
 	@Override
@@ -70,7 +82,7 @@ public class DebugActivity extends AppCompatActivity {
 
 	@SuppressLint("MissingPermission")
 	public void startUpdates(
-			@NonNull DebugActivity activity,
+			@NonNull MapActivity activity,
 			@NonNull FusedLocationProviderClient fusedLocationProviderClient) {
 		locationRequest = LocationRequest.create();
 		locationRequest.setInterval(TargetApp.INTERVAL_USUAL);
@@ -84,14 +96,25 @@ public class DebugActivity extends AppCompatActivity {
 				super.onLocationResult(locationResult);
 				fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
 					//update current location ui
-					activity.showLocation(location.getLatitude(), location.getLongitude());
+					// TODO: remove randomness
+					LatLng newPosition = new LatLng(
+							location.getLatitude() + Math.random() / 100,
+							location.getLongitude() + Math.random() / 100
+					);
+					userMarker.remove();
+					userMarker = map.addMarker(new MarkerOptions()
+							.position(newPosition)
+					);
+					if (camShouldTrackPosition) {
+						map.animateCamera(CameraUpdateFactory.newLatLngZoom(newPosition, 15));
+					}
 
 					//add location to current user
 					String lastLocation = String.valueOf((new Date()).getTime()) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							location.getLatitude() +
+							(location.getLatitude() + Math.random() / 100) +
 							TargetApp.DATE_LAT_LONG_SEPARATOR +
-							location.getLongitude();
+							(location.getLongitude() + Math.random() / 100);
 					try {
 						CurrentUser.locationHistory = LocationHandler.AddLocation(CurrentUser.locationHistory, lastLocation);
 					} catch (IllegalArgumentException e) {
@@ -109,19 +132,19 @@ public class DebugActivity extends AppCompatActivity {
 										int newInterval = Integer.parseInt(response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1]);
 										locationRequest.setInterval(newInterval);
 										fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
-										Toast.makeText(DebugActivity.this, "Server reports successful location update!", Toast.LENGTH_SHORT).show();
+										Toast.makeText(MapActivity.this, "Server reports successful location update!", Toast.LENGTH_SHORT).show();
 									} catch (Exception e) {
 										Log.e(TAG, e.getMessage());
-										Toast.makeText(DebugActivity.this, "Exception on location update!", Toast.LENGTH_SHORT).show();
+										Toast.makeText(MapActivity.this, "Exception on location update!", Toast.LENGTH_SHORT).show();
 									}
 								} else if (response.contains(ServerHandler.NOT_FOUND)) {
-									Toast.makeText(DebugActivity.this, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
+									Toast.makeText(MapActivity.this, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
 								} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
-									Toast.makeText(DebugActivity.this, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
+									Toast.makeText(MapActivity.this, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
 								} else if (response.contains(ServerHandler.UNDEFINED_CASE)) {
-									Toast.makeText(DebugActivity.this, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
+									Toast.makeText(MapActivity.this, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
 								} else {
-									Toast.makeText(DebugActivity.this, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
+									Toast.makeText(MapActivity.this, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
 								}
 							});
 						} catch (IOException | EmptyMessageException e) {
@@ -147,7 +170,9 @@ public class DebugActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_debug);
+
+		binding = ActivityMapBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 
 		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 		AlertDialog noNotifPerdialog;
@@ -163,10 +188,42 @@ public class DebugActivity extends AppCompatActivity {
 				@Override
 				public void run() {
 					noNotifPerdialog.dismiss();
-					DebugActivity.this.finish();
+					MapActivity.this.finish();
 				}
 			}, 10000);
 		}
+
+		codeDialog = new Dialog(MapActivity.this);
+		codeDialog.setCancelable(false);
+		codeDialog.setContentView(R.layout.dialog_code);
+		codeDialog.findViewById(R.id.codeBackB).setOnClickListener((viewDialog) -> {
+			codeDialog.cancel();
+		});
+
+		moveSwitch = findViewById(R.id.mainMoveCamS);
+		moveSwitch.setOnClickListener((view) -> {
+			camShouldTrackPosition = moveSwitch.isChecked();
+		});
+	}
+
+	/**
+	 * Manipulates the map once available.
+	 * This callback is triggered when the map is ready to be used.
+	 * This is where we can add markers or lines, add listeners or move the camera. In this case,
+	 * we just add a marker near Sydney, Australia.
+	 * If Google Play services is not installed on the device, the user will be prompted to install
+	 * it inside the SupportMapFragment. This method will only be triggered once the user has
+	 * installed Google Play services and returned to the app.
+	 */
+	@Override
+	public void onMapReady(GoogleMap googleMap) {
+		map = googleMap;
+		if (userMarker != null) {
+			userMarker.remove();
+		}
+		userMarker = map.addMarker(new MarkerOptions()
+				.position(new LatLng(0, 0)));
+		startUpdates(this, fusedLocationProviderClient);
 	}
 
 	@SuppressLint("MissingPermission")
@@ -177,18 +234,15 @@ public class DebugActivity extends AppCompatActivity {
 		Intent intent = new Intent(this, LocationService.class);
 		stopService(intent);
 
+		// Obtain the SupportMapFragment and get notified when the map is ready to be used.
+		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map);
+		mapFragment.getMapAsync(this);
 
 		TargetApp targetApp = TargetApp.getInstance();
 
-		mainLatValueTV = findViewById(R.id.mainLatValueTV);
-		mainLonValueTV = findViewById(R.id.mainLonValueTV);
-		mainSendBTN = findViewById(R.id.mainSendBTN);
-		mainHistoryValueTV = findViewById(R.id.mainHistoryValueTV);
-		mainDateValueTV = findViewById(R.id.mainDateValueTV);
 		mainGetCodeBTN = findViewById(R.id.mainGetCodeB);
-		mainCodeValueTV = findViewById(R.id.mainCodeValueTV);
 		mainLogOutB = findViewById(R.id.mainLogOutB);
-		mainSendBTN = findViewById(R.id.mainSendBTN);
 
 		fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -201,7 +255,9 @@ public class DebugActivity extends AppCompatActivity {
 					if (response.contains(ServerHandler.DELIVERED_CODE)) {
 						String code = response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1];
 						targetApp.getMainThreadHandler().post(() -> {
-							mainCodeValueTV.setText(code);
+							AppCompatTextView codeTV = codeDialog.findViewById(R.id.codeCodeTV);
+							codeTV.setText(code);
+							codeDialog.show();
 						});
 					} else {
 						targetApp.getMainThreadHandler().post(() -> {
@@ -229,41 +285,6 @@ public class DebugActivity extends AppCompatActivity {
 			startActivity(logOutIntent);
 			finish();
 		});
-
-		mainSendBTN.setOnClickListener(view -> {
-			//sync to server
-			TargetApp.getInstance().getExecutorService().execute(() -> {
-				try {
-					Socket socket = ServerHandler.updateLocation();
-					String response = ServerHandler.receive(socket).trim();
-					TargetApp.getInstance().getMainThreadHandler().post(() -> {
-						if (response.contains(ServerHandler.LOCATION_UPDATED)) {
-							try {
-								int newInterval = Integer.parseInt(response.split(String.valueOf(TargetApp.COMM_SEPARATOR))[1]);
-								locationRequest.setInterval(newInterval);
-								fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
-								Toast.makeText(DebugActivity.this, "Server reports successful location update!", Toast.LENGTH_SHORT).show();
-							} catch (Exception e) {
-								Log.e(TAG, e.getMessage());
-								Toast.makeText(DebugActivity.this, "Exception on location update!", Toast.LENGTH_SHORT).show();
-							}
-						} else if (response.contains(ServerHandler.NOT_FOUND)) {
-							Toast.makeText(DebugActivity.this, "Server reports user was not found on location update", Toast.LENGTH_LONG).show();
-						} else if (response.contains(ServerHandler.WRONG_PASSWORD)) {
-							Toast.makeText(DebugActivity.this, "Server reports password was wrong on location update", Toast.LENGTH_LONG).show();
-						} else if (response.contains(ServerHandler.UNDEFINED_CASE)) {
-							Toast.makeText(DebugActivity.this, "Server reports undefined case / request on location update", Toast.LENGTH_LONG).show();
-						} else {
-							Toast.makeText(DebugActivity.this, "Server reports something unknown on location update", Toast.LENGTH_LONG).show();
-						}
-					});
-				} catch (IOException | EmptyMessageException e) {
-					Log.e(TAG, e.getMessage());
-				}
-			});
-		});
-		startUpdates(this, fusedLocationProviderClient);
-		Log.e(TAG, "resumed");
 	}
 
 	@Override
@@ -274,20 +295,5 @@ public class DebugActivity extends AppCompatActivity {
 			Intent intent = new Intent(this, LocationService.class);
 			startForegroundService(intent);
 		}
-		Log.e(TAG, "paused");
-	}
-
-	public void showLocation(double latitude, double longitude) {
-		Date currentDate = new Date();
-		mainDateValueTV.setText(currentDate.toString());
-		mainLatValueTV.setText(String.valueOf(latitude));
-		mainLonValueTV.setText(String.valueOf(longitude));
-		//update history ui
-		StringBuilder historyString = new StringBuilder();
-		String[] historyArray = CurrentUser.locationHistory.split(String.valueOf(TargetApp.LOC_HISTORY_SEPARATOR));
-		for (String s : historyArray) {
-			historyString.append(s).append("\n");
-		}
-		mainHistoryValueTV.setText(historyString.toString());
 	}
 }

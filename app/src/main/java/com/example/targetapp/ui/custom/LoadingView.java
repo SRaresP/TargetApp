@@ -19,6 +19,8 @@ public class LoadingView extends LinearLayoutCompat {
 	public LoadingView(@NonNull Context context, String message, boolean vertical) {
 		super(context);
 
+		setPadding(10, 10, 10, 10);
+
 		ProgressBar progressBar = new ProgressBar(context);
 		TextView textView = new TextView(context);
 
