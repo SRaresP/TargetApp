@@ -1,13 +1,11 @@
 # TargetApp
-Part of the Geofencing package. This app is used by the person being tracked.
+Part of the Geofencing package. This app is used by the person being tracked. App is now usable.
 
 ## Todo
 
 Alert user when location is off.
 
-Add a map to display current position.
-
-Add geofences to that map.
+Add geofences to the user map?
 
 Handle connection resets when trying to communicate with the server. As in, if no response is received in time, log an error or something.
 
